@@ -2,21 +2,31 @@ package main
 
 import (
 	_ "expezgo/modules/device"
-	_ "expezgo/modules/user"
-	log "github.com/sirupsen/logrus"
 	"github.com/taerc/ezgo"
+	"github.com/taerc/ezgo/conf"
+	_ "gorm.io/driver/mysql"
 )
+
+var M string = "main"
 
 func Init(data interface{}) int {
 
-	log.Info("Init")
-	//device.InitDevRouter()
+	ezgo.Info(nil, M, "Init")
+	ezgo.Info(nil, M, "Hello")
+	ezgo.Info(nil, M, ezgo.ConfigPath)
+	conf.LoadConfigure(ezgo.ConfigPath)
+	ezgo.Info(nil, M, conf.Config.LogDir)
+	ezgo.Info(nil, M, conf.Config.Host)
+	ezgo.Info(nil, M, conf.Config.LogFileName)
+	ezgo.LoadComponent(ezgo.WithComponentLogger(conf.Config),
+		ezgo.WithComponentMySQL(conf.Config),
+	)
 	return ezgo.Success
 }
 
 func Exec(data interface{}) int {
 
-	log.Info("Execute")
+	ezgo.Info(nil, M, "Exec")
 	ezgo.Run("127.0.0.1:8080")
 	return ezgo.Success
 
@@ -24,7 +34,7 @@ func Exec(data interface{}) int {
 
 func Done(data interface{}) int {
 
-	log.Info("Done")
+	ezgo.Info(nil, M, "Done")
 
 	return ezgo.Success
 }
@@ -36,6 +46,6 @@ func init() {
 }
 
 func main() {
-	log.Info("hello")
+
 	appFlow.Do(nil)
 }
