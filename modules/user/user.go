@@ -3,6 +3,7 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/taerc/ezgo"
+	"sync"
 )
 
 var M string = "USER"
@@ -12,8 +13,6 @@ type QueryUser struct {
 }
 
 func UserGroup(ctx *gin.Context) {
-
-	ezgo.Info(ctx, M)
 
 	ctx.JSON(ezgo.Success, ezgo.ResponseTemplate{
 		Code:    10,
@@ -37,7 +36,15 @@ func (qu *CheckUser) Proc(ctx *gin.Context) {
 }
 
 func init() {
-	route := ezgo.Group("/maicro/user", UserGroup)
-	ezgo.SetPostProc(route, "query", &QueryUser{})
-	ezgo.SetPostProc(route, "check", &CheckUser{})
+}
+
+func WithModuleUser() func(wg *sync.WaitGroup) {
+
+	return func(wg *sync.WaitGroup) {
+		wg.Done()
+		route := ezgo.Group("/maicro/user", UserGroup)
+		ezgo.SetPostProc(route, "query", &QueryUser{})
+		ezgo.SetPostProc(route, "check", &CheckUser{})
+		ezgo.Info(nil, M, "Load finished!")
+	}
 }

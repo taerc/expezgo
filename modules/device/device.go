@@ -3,6 +3,7 @@ package device
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/taerc/ezgo"
+	"sync"
 )
 
 var M string = "DEVICE"
@@ -17,6 +18,15 @@ func (qd *QueryDevice) Proc(ctx *gin.Context) {
 }
 
 func init() {
-	route := ezgo.Group("/maicro/device")
-	ezgo.SetPostProc(route, "query", &QueryDevice{})
+}
+
+func WithModuleDevice() func(wg *sync.WaitGroup) {
+
+	return func(wg *sync.WaitGroup) {
+		wg.Done()
+		route := ezgo.Group("/maicro/device")
+		ezgo.SetPostProc(route, "query", &QueryDevice{})
+		ezgo.Info(nil, M, "Load finished!")
+	}
+
 }

@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/taerc/ezgo v0.0.2-alpha.5
+	github.com/taerc/ezgo v0.0.2-alpha.13
 )
 
 require (

@@ -1,7 +1,8 @@
-2023-06-29 06:06:06	info	Finished Load Logger !	{"req": "-", "mod": "EZGO"}
-2023-06-29 06:06:06	info	Exec	{"req": "-", "mod": "main"}
-2023-06-29 06:06:06	info	Finished Load Logger !	{"req": "-", "mod": "EZGO"}
-2023-06-29 06:06:06	info	open database begin	{"req": "-", "mod": "EZGO"}
-2023-06-29 06:06:06	info	Finished Load Logger !	{"req": "-", "mod": "EZGO"}
-2023-06-29 06:06:06	info	Exec	{"req": "-", "mod": "main"}
-2023-06-29 06:06:06	info	open database begin	{"req": "-", "mod": "EZGO"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- EZGO Finished Load Logger !"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- EZGO wp:wORd@2314@tcp(127.0.0.1:3306)/db_licence?charset=utf8mb4&parseTime=true&loc=Local"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- EZGO open database begin"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- main Exec"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- EZGO open database"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- EZGO open db"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- EZGO open duration"}
+{"level":"info","time":"2023-06-29 629:65:17","msg":"- EZGO Finished Load MySQL !"}
