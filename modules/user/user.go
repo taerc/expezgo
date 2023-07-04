@@ -14,7 +14,7 @@ type QueryUser struct {
 
 func UserGroup(ctx *gin.Context) {
 
-	ctx.JSON(ezgo.Success, ezgo.ResponseTemplate{
+	ctx.JSON(ezgo.Success, ezgo.Response{
 		Code:    10,
 		Data:    map[string]int{"group": 66},
 		Message: "ok",
