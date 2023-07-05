@@ -15,10 +15,10 @@ var M string = "MAIN"
 func Init(data interface{}) int {
 
 	conf.LoadConfigure(ezgo.ConfigPath)
-	ezgo.LoadComponent(
-		ezgo.WithComponentLogger(conf.Config),
-		//ezgo.WithComponentMySQL(conf.Config),
-	)
+	//ezgo.LoadComponent(
+	//ezgo.WithComponentLogger(conf.Config),
+	//ezgo.WithComponentMySQL(conf.Config),
+	//)
 
 	ezgo.LoadModule(
 		ezgo.WithModuleGitLab(),

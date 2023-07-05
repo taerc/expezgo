@@ -75,6 +75,8 @@ github.com/taerc/ezgo v0.0.3-alpha.1 h1:npsc/oubs4DOmcss3kl2NMD9AhH5VkW/IRcqc1m4
 github.com/taerc/ezgo v0.0.3-alpha.1/go.mod h1:YqSBopOk505qGuHdy6a5V5pMA/n516WF7PhHJRP00Es=
 github.com/taerc/ezgo v0.0.3-alpha.2 h1:fA6JofZUm9K2kooI7u4phGi/OaOw17CvC/3ladi4Diw=
 github.com/taerc/ezgo v0.0.3-alpha.2/go.mod h1:YqSBopOk505qGuHdy6a5V5pMA/n516WF7PhHJRP00Es=
+github.com/taerc/ezgo v0.0.3-alpha.3 h1:+Nu4/6LBvqolk6fYDZs3cMnXB+pkok69NS47dsD7lsQ=
+github.com/taerc/ezgo v0.0.3-alpha.3/go.mod h1:YqSBopOk505qGuHdy6a5V5pMA/n516WF7PhHJRP00Es=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.2.11 h1:BMaWp1Bb6fHwEtbplGBGJ498wD+LKlNSl25MjdZY4dU=
