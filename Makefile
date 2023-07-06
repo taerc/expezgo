@@ -6,15 +6,15 @@ MAJOR?="0"
 MINOR?="0"
 PATCH?="1"
 TAG_TYPE?="alpha"
-TYPE_VERSION?="7"
-MESSAGE?="新增加 swagger 文档"
+TYPE_VERSION?="8"
 DATETIME=`date +%Y%m%d%H%M`
 GIT_TAG=v$(MAJOR).$(MINOR).$(PATCH)-$(TAG_TYPE).$(TYPE_VERSION)
+MESSAGE?="新增加 swagger 文档"
 
 
-version:
+version:Makefile
 	@echo "package version" > version/ver.go
-	@echo "var AppVersion=\"$(GIT_TAG)\"" >> ver.go
+	@echo "var AppVersion=\"$(GIT_TAG)\"" >> version/ver.go
 release:version
 	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(SERVER) main.go
 init:

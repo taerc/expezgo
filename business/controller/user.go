@@ -1,4 +1,4 @@
-package user
+package controller
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-var M string = "USER"
+var M string = "Controller"
 
 type QueryUser struct {
 	ezgo.GinFlow

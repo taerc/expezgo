@@ -1,4 +1,4 @@
-package dblic
+package controller
 
 import (
 	"fmt"
@@ -6,8 +6,6 @@ import (
 	"github.com/taerc/ezgo"
 	"sync"
 )
-
-var M string = "DBLIC"
 
 type LicenceSN struct {
 	Id         int64  `gorm:"primary_key; column:id" json:"id"`

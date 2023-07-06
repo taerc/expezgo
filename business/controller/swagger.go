@@ -1,7 +1,8 @@
-package doc
+package controller
 
 import (
 	"expezgo/docs"
+	"expezgo/version"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -19,7 +20,7 @@ func WithModuleSwagger() func(wg *sync.WaitGroup) {
 		ezgo.GET(r, "/swagger/*any", func(ctx *gin.Context) {
 			docs.SwaggerInfo.Host = ctx.Request.Host
 			docs.SwaggerInfo.Title = "EasyGo"
-			docs.SwaggerInfo.Version = "v1.1.1.1"
+			docs.SwaggerInfo.Version = version.AppVersion
 			docs.SwaggerInfo.InfoInstanceName = "EasyGo"
 			ginSwagger.WrapHandler(swaggerFiles.Handler)(ctx)
 		})

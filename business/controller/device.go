@@ -1,12 +1,10 @@
-package device
+package controller
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/taerc/ezgo"
 	"sync"
 )
-
-var M string = "DEVICE"
 
 type QueryDevice struct {
 	ezgo.GinFlow

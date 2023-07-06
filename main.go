@@ -1,10 +1,7 @@
 package main
 
 import (
-	"expezgo/modules/dblic"
-	"expezgo/modules/device"
-	"expezgo/modules/doc"
-	"expezgo/modules/user"
+	"expezgo/business/controller"
 	"fmt"
 	"github.com/taerc/ezgo"
 	"github.com/taerc/ezgo/conf"
@@ -24,10 +21,10 @@ func Init(data interface{}) int {
 
 	ezgo.LoadModule(
 		ezgo.WithModuleGitLab(),
-		device.WithModuleDevice(),
-		dblic.WithModuleLicence(),
-		user.WithModuleUser(),
-		doc.WithModuleSwagger(),
+		controller.WithModuleDevice(),
+		controller.WithModuleLicence(),
+		controller.WithModuleUser(),
+		controller.WithModuleSwagger(),
 	)
 	return ezgo.Success
 }
