@@ -7,7 +7,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
 	github.com/swaggo/swag v1.16.1
-	github.com/taerc/ezgo v0.0.3-alpha.16
+	github.com/taerc/ezgo v0.0.4-alpha.0
 	gorm.io/driver/mysql v1.5.1
 )
 

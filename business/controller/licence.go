@@ -43,7 +43,7 @@ func WithModuleLicence() func(wg *sync.WaitGroup) {
 	return func(wg *sync.WaitGroup) {
 		wg.Done()
 		route := ezgo.Group("/maicro/lic")
-		ezgo.SetPostProc(route, "query", &QueryLic{})
+		ezgo.ProcPOST(route, "query", &QueryLic{})
 		ezgo.Info(nil, M, "Load finished!")
 	}
 

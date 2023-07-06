@@ -61,8 +61,8 @@ func WithModuleUser() func(wg *sync.WaitGroup) {
 	return func(wg *sync.WaitGroup) {
 		wg.Done()
 		route := ezgo.Group("/maicro/user", UserGroup)
-		ezgo.SetPostProc(route, "query", &QueryUser{})
-		ezgo.SetPostProc(route, "check", &CheckUser{})
+		ezgo.ProcPOST(route, "query", &QueryUser{})
+		ezgo.ProcPOST(route, "check", &CheckUser{})
 		ezgo.Info(nil, M, "Load finished!")
 	}
 }

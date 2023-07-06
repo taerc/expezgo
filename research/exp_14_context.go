@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"path"
 	"time"
 )
 
@@ -26,8 +27,13 @@ func SayHello(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("Hi, New Request Comes"))
 }
 
+func test()  {
+	fmt.Println(path.Join("/api", "v1","book"))
+	fmt.Println(path.Join("/api", "v1","/book"))
+}
 func main() {
-	http.HandleFunc("/", SayHello)
-	http.ListenAndServe(":8080", nil)
+	//http.HandleFunc("/", SayHello)
+	//http.ListenAndServe(":8080", nil)
+	test()
 
 }

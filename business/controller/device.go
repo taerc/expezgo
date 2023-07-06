@@ -32,7 +32,7 @@ func WithModuleDevice() func(wg *sync.WaitGroup) {
 	return func(wg *sync.WaitGroup) {
 		wg.Done()
 		route := ezgo.Group("/maicro/device")
-		ezgo.SetPostProc(route, "query", &QueryDevice{})
+		ezgo.ProcPOST(route, "query", &QueryDevice{})
 		ezgo.Info(nil, M, "Load finished!")
 	}
 
