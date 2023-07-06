@@ -1,0 +1,46 @@
+info:
+  contact: {}
+paths:
+  /maicro/device/query:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: query device
+      tags:
+      - 设备管理
+  /maicro/user/check:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 用户信息检查
+      tags:
+      - 用户管理
+  /maicro/user/query:
+    post:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 用户信息查询
+      tags:
+      - 用户管理
+swagger: "2.0"

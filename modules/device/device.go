@@ -12,6 +12,15 @@ type QueryDevice struct {
 	ezgo.GinFlow
 }
 
+// Proc query device godoc
+// @Summary query device
+// @Schemes
+// @Description
+// @Tags 设备管理
+// @Accept json
+// @Produce json
+// @Success 200 {string} OK
+// @Router /maicro/device/query [Post]
 func (qd *QueryDevice) Proc(ctx *gin.Context) {
 	ezgo.Info(ctx, M, "query")
 	qd.ResponseJson(ctx, 200, map[string]int{"id": 20, "name": 22})

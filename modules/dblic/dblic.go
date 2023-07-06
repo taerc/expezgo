@@ -31,7 +31,7 @@ func queryLicence() []LicenceSN {
 }
 
 type QueryLic struct {
-	ezgo.GinFlow
+	*ezgo.GinFlow
 }
 
 func (ql *QueryLic) Proc(ctx *gin.Context) {

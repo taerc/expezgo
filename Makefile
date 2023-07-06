@@ -6,21 +6,25 @@ MAJOR?="0"
 MINOR?="0"
 PATCH?="1"
 TAG_TYPE?="alpha"
-TYPE_VERSION?="5"
-MESSAGE?="ezgo-gitlab版本测试完成,并通过测试验证."
+TYPE_VERSION?="6"
+MESSAGE?="新增加 swagger 文档"
 DATETIME=`date +%Y%m%d%H%M`
 GIT_TAG=v$(MAJOR).$(MINOR).$(PATCH)-$(TAG_TYPE).$(TYPE_VERSION)
 
 
-release:
+version:
+	@echo "package version" > version/ver.go
+	@echo "var AppVersion=\"$(GIT_TAG)\"" >> ver.go
+release:version
 	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(SERVER) main.go
 init:
 	@rm -f go.mod go.sum
 	@go mod init tplgo
 	@go mod tidy
-develop:
-	go build -o $(SERVER) -gcflags="all=-N -l" main.go
-publish:
+develop:version
+	@go generate main.go
+	@go build -o $(SERVER) -gcflags="all=-N -l" main.go
+publish:version
 #linux系统 build
 	git add .
 	git commit -m $(MESSAGE)
