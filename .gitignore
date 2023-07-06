@@ -6,4 +6,5 @@ conf.ini
 expezgoserver
 docs/swagger.json
 docs/swagger.yaml
+resource/
 
