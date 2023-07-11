@@ -1,7 +1,7 @@
 package main
 
 import (
-	"expezgo/business/controller"
+	"expezgo/pkg/controller"
 	"fmt"
 	"github.com/taerc/ezgo"
 	"github.com/taerc/ezgo/conf"
@@ -16,7 +16,7 @@ func Init(data interface{}) int {
 	ezgo.LoadComponent(
 		ezgo.WithComponentResource(conf.Config),
 		//ezgo.WithComponentLogger(conf.Config),
-		ezgo.WithComponentMySQL(ezgo.Default, conf.Config),
+		ezgo.WithComponentMySQL(ezgo.Default, &conf.Config.SQL),
 	)
 
 	ezgo.LoadModule(

@@ -1,6 +1,6 @@
-phony:
+phony:expent
+export GO111MODULE="off"
 
-export GO111MODULE = on
 image: exp_11_template.go
 	go build -o image exp_11_template.go
 gen:
@@ -13,3 +13,6 @@ strings:
 
 context:exp_14_context.go
 	go build -o context exp_14_context.go
+
+expent:exp_ent_sql.go
+	go build -o expent exp_ent_sql.go
