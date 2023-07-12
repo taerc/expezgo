@@ -2,6 +2,7 @@ package main
 
 import (
 	"expezgo/pkg/controller"
+	"flag"
 	"fmt"
 	"github.com/taerc/ezgo"
 	"github.com/taerc/ezgo/conf"
@@ -10,9 +11,19 @@ import (
 
 var M string = "MAIN"
 
+
+var ConfigPath string
+var ShowVersion bool
+
+func init() {
+	flag.BoolVar(&ShowVersion, "version", false, "print program build version")
+	flag.StringVar(&ConfigPath, "c", "conf/config.toml", "path of configure file.")
+	flag.Parse()
+}
+
 func Init(data interface{}) int {
 
-	conf.LoadConfigure(ezgo.ConfigPath)
+	conf.LoadConfigure(ConfigPath)
 	ezgo.LoadComponent(
 		ezgo.WithComponentResource(conf.Config),
 		//ezgo.WithComponentLogger(conf.Config),

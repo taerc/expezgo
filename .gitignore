@@ -1,5 +1,5 @@
 .idea/
-cmd/
+build/
 app
 app.log
 zap.log
