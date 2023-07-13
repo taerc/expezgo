@@ -11,7 +11,6 @@ import (
 
 var M string = "MAIN"
 
-
 var ConfigPath string
 var ShowVersion bool
 
@@ -35,6 +34,7 @@ func Init(data interface{}) int {
 		controller.WithModuleDevice(),
 		controller.WithModuleLicence(),
 		controller.WithModuleUser(),
+		controller.WithModuleGEO(),
 		controller.WithModuleSwagger(),
 	)
 	return ezgo.Success

@@ -6,10 +6,10 @@ MAJOR?="0"
 MINOR?="0"
 PATCH?="1"
 TAG_TYPE?="alpha"
-TYPE_VERSION?="11"
+TYPE_VERSION?="12"
 DATETIME=`date +%Y%m%d%H%M`
 GIT_TAG=v$(MAJOR).$(MINOR).$(PATCH)-$(TAG_TYPE).$(TYPE_VERSION)
-MESSAGE?="测试和验证命令行参数"
+MESSAGE?="gorm Preload 测试"
 
 
 version:Makefile
@@ -35,3 +35,6 @@ publish:version
 expent:research/exp_ent_sql.go
 	go generate pkg/ext
 	go build -o build/expent -gcflags="all=-N -l" research/exp_ent_sql.go
+
+geo:research/exp_ent_geo_data.go
+	go build -o build/geo research/exp_ent_geo_data.go

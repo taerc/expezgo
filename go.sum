@@ -172,10 +172,14 @@ github.com/swaggo/gin-swagger v1.6.0 h1:y8sxvQ3E20/RCyrXeFfg60r6H0Z+SwpTjMYsMm+z
 github.com/swaggo/gin-swagger v1.6.0/go.mod h1:BG00cCEy294xtVpyIAHG6+e2Qzj/xKlRdOqDkvq0uzo=
 github.com/swaggo/swag v1.16.1 h1:fTNRhKstPKxcnoKsytm4sahr8FaYzUcT7i1/3nd/fBg=
 github.com/swaggo/swag v1.16.1/go.mod h1:9/LMvHycG3NFHfR6LwvikHv5iFvmPADQ359cKikGxto=
-github.com/taerc/ezgo v0.0.4-alpha.1 h1:TQrlwkIsDosNiHNEh6AwVbxRIiw5xUD2hbI97tFhR90=
-github.com/taerc/ezgo v0.0.4-alpha.1/go.mod h1:1EF9TKXA3Y5nYKjn7fgP68APfBjqg7clIfiff+UbYn4=
 github.com/taerc/ezgo v0.0.4-alpha.2 h1:5YIn/Qn2qckuoXqP/wrro63LGRhjS+mI7a9nmJ0anUo=
 github.com/taerc/ezgo v0.0.4-alpha.2/go.mod h1:1EF9TKXA3Y5nYKjn7fgP68APfBjqg7clIfiff+UbYn4=
+github.com/taerc/ezgo v0.0.4-alpha.3 h1:cpHG0T8QnsIWZmZKcT4UbcklELOb6CI8WNWVxuy1XmI=
+github.com/taerc/ezgo v0.0.4-alpha.3/go.mod h1:1EF9TKXA3Y5nYKjn7fgP68APfBjqg7clIfiff+UbYn4=
+github.com/taerc/ezgo v0.0.4-alpha.4 h1:XLsUEuPvSnnK6nzlTEjx/futynZ7H7aJri3nUpB4rS8=
+github.com/taerc/ezgo v0.0.4-alpha.4/go.mod h1:1EF9TKXA3Y5nYKjn7fgP68APfBjqg7clIfiff+UbYn4=
+github.com/taerc/ezgo v0.0.4-alpha.5 h1:l0rlbKn6pwQlMGpnfznqUXFnnd//sj/CZd2xnSfMwc4=
+github.com/taerc/ezgo v0.0.4-alpha.5/go.mod h1:1EF9TKXA3Y5nYKjn7fgP68APfBjqg7clIfiff+UbYn4=
 github.com/tklauser/go-sysconf v0.3.11 h1:89WgdJhk5SNwJfu+GKyYveZ4IaJ7xAkecBo+KdJV0CM=
 github.com/tklauser/go-sysconf v0.3.11/go.mod h1:GqXfhXY3kiPa0nAXPDIQIWzJbMCB7AmcWpGR8lSZfqI=
 github.com/tklauser/numcpus v0.6.0 h1:kebhY2Qt+3U6RNK7UqpYNA+tJ23IBEGKkB7JQBfDYms=
