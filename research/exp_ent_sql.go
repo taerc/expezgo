@@ -17,9 +17,18 @@ func QueryLicence(ctx context.Context, client *ent.Client) (*ent.Licence, error)
 	return u, nil
 }
 
+func QueryProvince(ctx context.Context, client *ent.Client) ([]*ent.Province, error) {
+
+	u, e := client.Province.Query().All(ctx)
+	if e != nil {
+		return nil, e
+	}
+	return u, nil
+}
+
 func main() {
 
-	client, err := ent.Open("mysql", "wp:wORd@2314@tcp(127.0.0.1:3306)/db_licence?parseTime=True")
+	client, err := ent.Open("mysql", "wp:wORd@2314@tcp(127.0.0.1:3306)/buckets?parseTime=True")
 	if err != nil {
 		log.Fatalf("failed opening connection to mysql: %v", err)
 	}
@@ -31,7 +40,8 @@ func main() {
 	//	log.Fatalf("failed creating schema resources: %v", err)
 	//}
 
-	l, _ := QueryLicence(ctx, client)
+	//l, _ := QueryLicence(ctx, client)
+	l, _ := QueryProvince(ctx, client)
 
 	fmt.Println(l)
 }

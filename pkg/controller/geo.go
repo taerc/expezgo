@@ -54,15 +54,9 @@ func (geo *QueryGEO) Proc(ctx *gin.Context) {
 	pros := make([]Province, 0)
 	//db.Find(&pros)
 	//db.Preload("Cities").Find(&pros)
-	//db.Preload("Cities").Preload("Cities.Counties").Find(&pros)
-	db.Preload("Cities", "id & 1").Preload("Cities.Counties", "id &1 ").Find(&pros)
-
+	db.Preload("Cities").Preload("Cities.Counties").Find(&pros)
+	//db.Preload("Cities", "id & 1").Preload("Cities.Counties", "id &1 ").Find(&pros)
 	geo.ResponseIndJson(ctx, ezgo.Success, pros)
-
-	//if data, e := json.Marshal(pros); e == nil {
-	//	fmt.Println(string(data))
-	//}
-	//fmt.Println(pros)
 }
 
 func WithModuleGEO() func(wg *sync.WaitGroup) {

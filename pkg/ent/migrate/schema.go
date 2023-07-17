@@ -9,6 +9,32 @@ import (
 )
 
 var (
+	// CityColumns holds the columns for the "city" table.
+	CityColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "name", Type: field.TypeString, Size: 256},
+		{Name: "type", Type: field.TypeUint32, Default: 0},
+		{Name: "pid", Type: field.TypeUint32},
+	}
+	// CityTable holds the schema information for the "city" table.
+	CityTable = &schema.Table{
+		Name:       "city",
+		Columns:    CityColumns,
+		PrimaryKey: []*schema.Column{CityColumns[0]},
+	}
+	// CountyColumns holds the columns for the "county" table.
+	CountyColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "name", Type: field.TypeString, Size: 256},
+		{Name: "type", Type: field.TypeUint32, Default: 0},
+		{Name: "pid", Type: field.TypeUint32},
+	}
+	// CountyTable holds the schema information for the "county" table.
+	CountyTable = &schema.Table{
+		Name:       "county",
+		Columns:    CountyColumns,
+		PrimaryKey: []*schema.Column{CountyColumns[0]},
+	}
 	// LicSnColumns holds the columns for the "lic_sn" table.
 	LicSnColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt64, Increment: true},
@@ -24,14 +50,38 @@ var (
 		Columns:    LicSnColumns,
 		PrimaryKey: []*schema.Column{LicSnColumns[0]},
 	}
+	// ProvinceColumns holds the columns for the "province" table.
+	ProvinceColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint32, Increment: true},
+		{Name: "name", Type: field.TypeString, Size: 256},
+		{Name: "type", Type: field.TypeUint32, Default: 0},
+	}
+	// ProvinceTable holds the schema information for the "province" table.
+	ProvinceTable = &schema.Table{
+		Name:       "province",
+		Columns:    ProvinceColumns,
+		PrimaryKey: []*schema.Column{ProvinceColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		CityTable,
+		CountyTable,
 		LicSnTable,
+		ProvinceTable,
 	}
 )
 
 func init() {
+	CityTable.Annotation = &entsql.Annotation{
+		Table: "city",
+	}
+	CountyTable.Annotation = &entsql.Annotation{
+		Table: "county",
+	}
 	LicSnTable.Annotation = &entsql.Annotation{
 		Table: "lic_sn",
+	}
+	ProvinceTable.Annotation = &entsql.Annotation{
+		Table: "province",
 	}
 }

@@ -6,5 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// City is the predicate function for city builders.
+type City func(*sql.Selector)
+
+// County is the predicate function for county builders.
+type County func(*sql.Selector)
+
 // Licence is the predicate function for licence builders.
 type Licence func(*sql.Selector)
+
+// Province is the predicate function for province builders.
+type Province func(*sql.Selector)

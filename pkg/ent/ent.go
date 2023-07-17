@@ -5,7 +5,10 @@ package ent
 import (
 	"context"
 	"errors"
+	"expezgo/pkg/ent/city"
+	"expezgo/pkg/ent/county"
 	"expezgo/pkg/ent/licence"
+	"expezgo/pkg/ent/province"
 	"fmt"
 	"reflect"
 	"sync"
@@ -73,7 +76,10 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			licence.Table: licence.ValidColumn,
+			city.Table:     city.ValidColumn,
+			county.Table:   county.ValidColumn,
+			licence.Table:  licence.ValidColumn,
+			province.Table: province.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

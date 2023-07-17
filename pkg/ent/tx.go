@@ -12,8 +12,14 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// City is the client for interacting with the City builders.
+	City *CityClient
+	// County is the client for interacting with the County builders.
+	County *CountyClient
 	// Licence is the client for interacting with the Licence builders.
 	Licence *LicenceClient
+	// Province is the client for interacting with the Province builders.
+	Province *ProvinceClient
 
 	// lazily loaded.
 	client     *Client
@@ -145,7 +151,10 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.City = NewCityClient(tx.config)
+	tx.County = NewCountyClient(tx.config)
 	tx.Licence = NewLicenceClient(tx.config)
+	tx.Province = NewProvinceClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -155,7 +164,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Licence.QueryXXX(), the query will be executed
+// applies a query, for example: City.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.
