@@ -4,6 +4,7 @@ package ent
 
 import (
 	"expezgo/pkg/ent/city"
+	"expezgo/pkg/ent/province"
 	"fmt"
 	"strings"
 
@@ -15,14 +16,50 @@ import (
 type City struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID uint32 `json:"id,omitempty"`
+	ID uint32 `json:"id,omitempty" validate:"gte=0,lte=130"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Type holds the value of the "type" field.
 	Type uint32 `json:"type,omitempty"`
 	// Pid holds the value of the "pid" field.
-	Pid          uint32 `json:"pid,omitempty"`
+	Pid uint32 `json:"pid,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the CityQuery when eager-loading is set.
+	Edges        CityEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// CityEdges holds the relations/edges for other nodes in the graph.
+type CityEdges struct {
+	// Provinces holds the value of the provinces edge.
+	Provinces *Province `json:"provinces,omitempty"`
+	// Counties holds the value of the counties edge.
+	Counties []*County `json:"counties,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// ProvincesOrErr returns the Provinces value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CityEdges) ProvincesOrErr() (*Province, error) {
+	if e.loadedTypes[0] {
+		if e.Provinces == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: province.Label}
+		}
+		return e.Provinces, nil
+	}
+	return nil, &NotLoadedError{edge: "provinces"}
+}
+
+// CountiesOrErr returns the Counties value or an error if the edge
+// was not loaded in eager-loading.
+func (e CityEdges) CountiesOrErr() ([]*County, error) {
+	if e.loadedTypes[1] {
+		return e.Counties, nil
+	}
+	return nil, &NotLoadedError{edge: "counties"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -84,6 +121,16 @@ func (c *City) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (c *City) Value(name string) (ent.Value, error) {
 	return c.selectValues.Get(name)
+}
+
+// QueryProvinces queries the "provinces" edge of the City entity.
+func (c *City) QueryProvinces() *ProvinceQuery {
+	return NewCityClient(c.config).QueryProvinces(c)
+}
+
+// QueryCounties queries the "counties" edge of the City entity.
+func (c *City) QueryCounties() *CountyQuery {
+	return NewCityClient(c.config).QueryCounties(c)
 }
 
 // Update returns a builder for updating this City.

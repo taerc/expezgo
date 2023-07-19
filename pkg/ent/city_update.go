@@ -6,7 +6,9 @@ import (
 	"context"
 	"errors"
 	"expezgo/pkg/ent/city"
+	"expezgo/pkg/ent/county"
 	"expezgo/pkg/ent/predicate"
+	"expezgo/pkg/ent/province"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
@@ -17,8 +19,9 @@ import (
 // CityUpdate is the builder for updating City entities.
 type CityUpdate struct {
 	config
-	hooks    []Hook
-	mutation *CityMutation
+	hooks     []Hook
+	mutation  *CityMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the CityUpdate builder.
@@ -56,20 +59,88 @@ func (cu *CityUpdate) AddType(u int32) *CityUpdate {
 
 // SetPid sets the "pid" field.
 func (cu *CityUpdate) SetPid(u uint32) *CityUpdate {
-	cu.mutation.ResetPid()
 	cu.mutation.SetPid(u)
 	return cu
 }
 
-// AddPid adds u to the "pid" field.
-func (cu *CityUpdate) AddPid(u int32) *CityUpdate {
-	cu.mutation.AddPid(u)
+// SetNillablePid sets the "pid" field if the given value is not nil.
+func (cu *CityUpdate) SetNillablePid(u *uint32) *CityUpdate {
+	if u != nil {
+		cu.SetPid(*u)
+	}
 	return cu
+}
+
+// ClearPid clears the value of the "pid" field.
+func (cu *CityUpdate) ClearPid() *CityUpdate {
+	cu.mutation.ClearPid()
+	return cu
+}
+
+// SetProvincesID sets the "provinces" edge to the Province entity by ID.
+func (cu *CityUpdate) SetProvincesID(id uint32) *CityUpdate {
+	cu.mutation.SetProvincesID(id)
+	return cu
+}
+
+// SetNillableProvincesID sets the "provinces" edge to the Province entity by ID if the given value is not nil.
+func (cu *CityUpdate) SetNillableProvincesID(id *uint32) *CityUpdate {
+	if id != nil {
+		cu = cu.SetProvincesID(*id)
+	}
+	return cu
+}
+
+// SetProvinces sets the "provinces" edge to the Province entity.
+func (cu *CityUpdate) SetProvinces(p *Province) *CityUpdate {
+	return cu.SetProvincesID(p.ID)
+}
+
+// AddCountyIDs adds the "counties" edge to the County entity by IDs.
+func (cu *CityUpdate) AddCountyIDs(ids ...uint32) *CityUpdate {
+	cu.mutation.AddCountyIDs(ids...)
+	return cu
+}
+
+// AddCounties adds the "counties" edges to the County entity.
+func (cu *CityUpdate) AddCounties(c ...*County) *CityUpdate {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cu.AddCountyIDs(ids...)
 }
 
 // Mutation returns the CityMutation object of the builder.
 func (cu *CityUpdate) Mutation() *CityMutation {
 	return cu.mutation
+}
+
+// ClearProvinces clears the "provinces" edge to the Province entity.
+func (cu *CityUpdate) ClearProvinces() *CityUpdate {
+	cu.mutation.ClearProvinces()
+	return cu
+}
+
+// ClearCounties clears all "counties" edges to the County entity.
+func (cu *CityUpdate) ClearCounties() *CityUpdate {
+	cu.mutation.ClearCounties()
+	return cu
+}
+
+// RemoveCountyIDs removes the "counties" edge to County entities by IDs.
+func (cu *CityUpdate) RemoveCountyIDs(ids ...uint32) *CityUpdate {
+	cu.mutation.RemoveCountyIDs(ids...)
+	return cu
+}
+
+// RemoveCounties removes "counties" edges to County entities.
+func (cu *CityUpdate) RemoveCounties(c ...*County) *CityUpdate {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cu.RemoveCountyIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -109,6 +180,12 @@ func (cu *CityUpdate) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (cu *CityUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *CityUpdate {
+	cu.modifiers = append(cu.modifiers, modifiers...)
+	return cu
+}
+
 func (cu *CityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := cu.check(); err != nil {
 		return n, err
@@ -130,12 +207,81 @@ func (cu *CityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.AddedType(); ok {
 		_spec.AddField(city.FieldType, field.TypeUint32, value)
 	}
-	if value, ok := cu.mutation.Pid(); ok {
-		_spec.SetField(city.FieldPid, field.TypeUint32, value)
+	if cu.mutation.ProvincesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   city.ProvincesTable,
+			Columns: []string{city.ProvincesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := cu.mutation.AddedPid(); ok {
-		_spec.AddField(city.FieldPid, field.TypeUint32, value)
+	if nodes := cu.mutation.ProvincesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   city.ProvincesTable,
+			Columns: []string{city.ProvincesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if cu.mutation.CountiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   city.CountiesTable,
+			Columns: []string{city.CountiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(county.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.RemovedCountiesIDs(); len(nodes) > 0 && !cu.mutation.CountiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   city.CountiesTable,
+			Columns: []string{city.CountiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(county.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cu.mutation.CountiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   city.CountiesTable,
+			Columns: []string{city.CountiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(county.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	_spec.AddModifiers(cu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{city.Label}
@@ -151,9 +297,10 @@ func (cu *CityUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // CityUpdateOne is the builder for updating a single City entity.
 type CityUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *CityMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *CityMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetName sets the "name" field.
@@ -185,20 +332,88 @@ func (cuo *CityUpdateOne) AddType(u int32) *CityUpdateOne {
 
 // SetPid sets the "pid" field.
 func (cuo *CityUpdateOne) SetPid(u uint32) *CityUpdateOne {
-	cuo.mutation.ResetPid()
 	cuo.mutation.SetPid(u)
 	return cuo
 }
 
-// AddPid adds u to the "pid" field.
-func (cuo *CityUpdateOne) AddPid(u int32) *CityUpdateOne {
-	cuo.mutation.AddPid(u)
+// SetNillablePid sets the "pid" field if the given value is not nil.
+func (cuo *CityUpdateOne) SetNillablePid(u *uint32) *CityUpdateOne {
+	if u != nil {
+		cuo.SetPid(*u)
+	}
 	return cuo
+}
+
+// ClearPid clears the value of the "pid" field.
+func (cuo *CityUpdateOne) ClearPid() *CityUpdateOne {
+	cuo.mutation.ClearPid()
+	return cuo
+}
+
+// SetProvincesID sets the "provinces" edge to the Province entity by ID.
+func (cuo *CityUpdateOne) SetProvincesID(id uint32) *CityUpdateOne {
+	cuo.mutation.SetProvincesID(id)
+	return cuo
+}
+
+// SetNillableProvincesID sets the "provinces" edge to the Province entity by ID if the given value is not nil.
+func (cuo *CityUpdateOne) SetNillableProvincesID(id *uint32) *CityUpdateOne {
+	if id != nil {
+		cuo = cuo.SetProvincesID(*id)
+	}
+	return cuo
+}
+
+// SetProvinces sets the "provinces" edge to the Province entity.
+func (cuo *CityUpdateOne) SetProvinces(p *Province) *CityUpdateOne {
+	return cuo.SetProvincesID(p.ID)
+}
+
+// AddCountyIDs adds the "counties" edge to the County entity by IDs.
+func (cuo *CityUpdateOne) AddCountyIDs(ids ...uint32) *CityUpdateOne {
+	cuo.mutation.AddCountyIDs(ids...)
+	return cuo
+}
+
+// AddCounties adds the "counties" edges to the County entity.
+func (cuo *CityUpdateOne) AddCounties(c ...*County) *CityUpdateOne {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cuo.AddCountyIDs(ids...)
 }
 
 // Mutation returns the CityMutation object of the builder.
 func (cuo *CityUpdateOne) Mutation() *CityMutation {
 	return cuo.mutation
+}
+
+// ClearProvinces clears the "provinces" edge to the Province entity.
+func (cuo *CityUpdateOne) ClearProvinces() *CityUpdateOne {
+	cuo.mutation.ClearProvinces()
+	return cuo
+}
+
+// ClearCounties clears all "counties" edges to the County entity.
+func (cuo *CityUpdateOne) ClearCounties() *CityUpdateOne {
+	cuo.mutation.ClearCounties()
+	return cuo
+}
+
+// RemoveCountyIDs removes the "counties" edge to County entities by IDs.
+func (cuo *CityUpdateOne) RemoveCountyIDs(ids ...uint32) *CityUpdateOne {
+	cuo.mutation.RemoveCountyIDs(ids...)
+	return cuo
+}
+
+// RemoveCounties removes "counties" edges to County entities.
+func (cuo *CityUpdateOne) RemoveCounties(c ...*County) *CityUpdateOne {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cuo.RemoveCountyIDs(ids...)
 }
 
 // Where appends a list predicates to the CityUpdate builder.
@@ -251,6 +466,12 @@ func (cuo *CityUpdateOne) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (cuo *CityUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *CityUpdateOne {
+	cuo.modifiers = append(cuo.modifiers, modifiers...)
+	return cuo
+}
+
 func (cuo *CityUpdateOne) sqlSave(ctx context.Context) (_node *City, err error) {
 	if err := cuo.check(); err != nil {
 		return _node, err
@@ -289,12 +510,81 @@ func (cuo *CityUpdateOne) sqlSave(ctx context.Context) (_node *City, err error) 
 	if value, ok := cuo.mutation.AddedType(); ok {
 		_spec.AddField(city.FieldType, field.TypeUint32, value)
 	}
-	if value, ok := cuo.mutation.Pid(); ok {
-		_spec.SetField(city.FieldPid, field.TypeUint32, value)
+	if cuo.mutation.ProvincesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   city.ProvincesTable,
+			Columns: []string{city.ProvincesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := cuo.mutation.AddedPid(); ok {
-		_spec.AddField(city.FieldPid, field.TypeUint32, value)
+	if nodes := cuo.mutation.ProvincesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   city.ProvincesTable,
+			Columns: []string{city.ProvincesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if cuo.mutation.CountiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   city.CountiesTable,
+			Columns: []string{city.CountiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(county.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.RemovedCountiesIDs(); len(nodes) > 0 && !cuo.mutation.CountiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   city.CountiesTable,
+			Columns: []string{city.CountiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(county.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := cuo.mutation.CountiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   city.CountiesTable,
+			Columns: []string{city.CountiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(county.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	_spec.AddModifiers(cuo.modifiers...)
 	_node = &City{config: cuo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

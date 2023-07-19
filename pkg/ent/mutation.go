@@ -35,18 +35,21 @@ const (
 // CityMutation represents an operation that mutates the City nodes in the graph.
 type CityMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uint32
-	name          *string
-	_type         *uint32
-	add_type      *int32
-	pid           *uint32
-	addpid        *int32
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*City, error)
-	predicates    []predicate.City
+	op               Op
+	typ              string
+	id               *uint32
+	name             *string
+	_type            *uint32
+	add_type         *int32
+	clearedFields    map[string]struct{}
+	provinces        *uint32
+	clearedprovinces bool
+	counties         map[uint32]struct{}
+	removedcounties  map[uint32]struct{}
+	clearedcounties  bool
+	done             bool
+	oldValue         func(context.Context) (*City, error)
+	predicates       []predicate.City
 }
 
 var _ ent.Mutation = (*CityMutation)(nil)
@@ -247,13 +250,12 @@ func (m *CityMutation) ResetType() {
 
 // SetPid sets the "pid" field.
 func (m *CityMutation) SetPid(u uint32) {
-	m.pid = &u
-	m.addpid = nil
+	m.provinces = &u
 }
 
 // Pid returns the value of the "pid" field in the mutation.
 func (m *CityMutation) Pid() (r uint32, exists bool) {
-	v := m.pid
+	v := m.provinces
 	if v == nil {
 		return
 	}
@@ -277,28 +279,115 @@ func (m *CityMutation) OldPid(ctx context.Context) (v uint32, err error) {
 	return oldValue.Pid, nil
 }
 
-// AddPid adds u to the "pid" field.
-func (m *CityMutation) AddPid(u int32) {
-	if m.addpid != nil {
-		*m.addpid += u
-	} else {
-		m.addpid = &u
-	}
+// ClearPid clears the value of the "pid" field.
+func (m *CityMutation) ClearPid() {
+	m.provinces = nil
+	m.clearedFields[city.FieldPid] = struct{}{}
 }
 
-// AddedPid returns the value that was added to the "pid" field in this mutation.
-func (m *CityMutation) AddedPid() (r int32, exists bool) {
-	v := m.addpid
-	if v == nil {
-		return
-	}
-	return *v, true
+// PidCleared returns if the "pid" field was cleared in this mutation.
+func (m *CityMutation) PidCleared() bool {
+	_, ok := m.clearedFields[city.FieldPid]
+	return ok
 }
 
 // ResetPid resets all changes to the "pid" field.
 func (m *CityMutation) ResetPid() {
-	m.pid = nil
-	m.addpid = nil
+	m.provinces = nil
+	delete(m.clearedFields, city.FieldPid)
+}
+
+// SetProvincesID sets the "provinces" edge to the Province entity by id.
+func (m *CityMutation) SetProvincesID(id uint32) {
+	m.provinces = &id
+}
+
+// ClearProvinces clears the "provinces" edge to the Province entity.
+func (m *CityMutation) ClearProvinces() {
+	m.clearedprovinces = true
+}
+
+// ProvincesCleared reports if the "provinces" edge to the Province entity was cleared.
+func (m *CityMutation) ProvincesCleared() bool {
+	return m.PidCleared() || m.clearedprovinces
+}
+
+// ProvincesID returns the "provinces" edge ID in the mutation.
+func (m *CityMutation) ProvincesID() (id uint32, exists bool) {
+	if m.provinces != nil {
+		return *m.provinces, true
+	}
+	return
+}
+
+// ProvincesIDs returns the "provinces" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// ProvincesID instead. It exists only for internal usage by the builders.
+func (m *CityMutation) ProvincesIDs() (ids []uint32) {
+	if id := m.provinces; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetProvinces resets all changes to the "provinces" edge.
+func (m *CityMutation) ResetProvinces() {
+	m.provinces = nil
+	m.clearedprovinces = false
+}
+
+// AddCountyIDs adds the "counties" edge to the County entity by ids.
+func (m *CityMutation) AddCountyIDs(ids ...uint32) {
+	if m.counties == nil {
+		m.counties = make(map[uint32]struct{})
+	}
+	for i := range ids {
+		m.counties[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCounties clears the "counties" edge to the County entity.
+func (m *CityMutation) ClearCounties() {
+	m.clearedcounties = true
+}
+
+// CountiesCleared reports if the "counties" edge to the County entity was cleared.
+func (m *CityMutation) CountiesCleared() bool {
+	return m.clearedcounties
+}
+
+// RemoveCountyIDs removes the "counties" edge to the County entity by IDs.
+func (m *CityMutation) RemoveCountyIDs(ids ...uint32) {
+	if m.removedcounties == nil {
+		m.removedcounties = make(map[uint32]struct{})
+	}
+	for i := range ids {
+		delete(m.counties, ids[i])
+		m.removedcounties[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCounties returns the removed IDs of the "counties" edge to the County entity.
+func (m *CityMutation) RemovedCountiesIDs() (ids []uint32) {
+	for id := range m.removedcounties {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CountiesIDs returns the "counties" edge IDs in the mutation.
+func (m *CityMutation) CountiesIDs() (ids []uint32) {
+	for id := range m.counties {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCounties resets all changes to the "counties" edge.
+func (m *CityMutation) ResetCounties() {
+	m.counties = nil
+	m.clearedcounties = false
+	m.removedcounties = nil
 }
 
 // Where appends a list predicates to the CityMutation builder.
@@ -342,7 +431,7 @@ func (m *CityMutation) Fields() []string {
 	if m._type != nil {
 		fields = append(fields, city.FieldType)
 	}
-	if m.pid != nil {
+	if m.provinces != nil {
 		fields = append(fields, city.FieldPid)
 	}
 	return fields
@@ -415,9 +504,6 @@ func (m *CityMutation) AddedFields() []string {
 	if m.add_type != nil {
 		fields = append(fields, city.FieldType)
 	}
-	if m.addpid != nil {
-		fields = append(fields, city.FieldPid)
-	}
 	return fields
 }
 
@@ -428,8 +514,6 @@ func (m *CityMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case city.FieldType:
 		return m.AddedType()
-	case city.FieldPid:
-		return m.AddedPid()
 	}
 	return nil, false
 }
@@ -446,13 +530,6 @@ func (m *CityMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddType(v)
 		return nil
-	case city.FieldPid:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddPid(v)
-		return nil
 	}
 	return fmt.Errorf("unknown City numeric field %s", name)
 }
@@ -460,7 +537,11 @@ func (m *CityMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *CityMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(city.FieldPid) {
+		fields = append(fields, city.FieldPid)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -473,6 +554,11 @@ func (m *CityMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CityMutation) ClearField(name string) error {
+	switch name {
+	case city.FieldPid:
+		m.ClearPid()
+		return nil
+	}
 	return fmt.Errorf("unknown City nullable field %s", name)
 }
 
@@ -495,49 +581,103 @@ func (m *CityMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *CityMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.provinces != nil {
+		edges = append(edges, city.EdgeProvinces)
+	}
+	if m.counties != nil {
+		edges = append(edges, city.EdgeCounties)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *CityMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case city.EdgeProvinces:
+		if id := m.provinces; id != nil {
+			return []ent.Value{*id}
+		}
+	case city.EdgeCounties:
+		ids := make([]ent.Value, 0, len(m.counties))
+		for id := range m.counties {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CityMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.removedcounties != nil {
+		edges = append(edges, city.EdgeCounties)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *CityMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case city.EdgeCounties:
+		ids := make([]ent.Value, 0, len(m.removedcounties))
+		for id := range m.removedcounties {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *CityMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.clearedprovinces {
+		edges = append(edges, city.EdgeProvinces)
+	}
+	if m.clearedcounties {
+		edges = append(edges, city.EdgeCounties)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *CityMutation) EdgeCleared(name string) bool {
+	switch name {
+	case city.EdgeProvinces:
+		return m.clearedprovinces
+	case city.EdgeCounties:
+		return m.clearedcounties
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *CityMutation) ClearEdge(name string) error {
+	switch name {
+	case city.EdgeProvinces:
+		m.ClearProvinces()
+		return nil
+	}
 	return fmt.Errorf("unknown City unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *CityMutation) ResetEdge(name string) error {
+	switch name {
+	case city.EdgeProvinces:
+		m.ResetProvinces()
+		return nil
+	case city.EdgeCounties:
+		m.ResetCounties()
+		return nil
+	}
 	return fmt.Errorf("unknown City edge %s", name)
 }
 
@@ -550,9 +690,9 @@ type CountyMutation struct {
 	name          *string
 	_type         *uint32
 	add_type      *int32
-	pid           *uint32
-	addpid        *int32
 	clearedFields map[string]struct{}
+	city          *uint32
+	clearedcity   bool
 	done          bool
 	oldValue      func(context.Context) (*County, error)
 	predicates    []predicate.County
@@ -756,13 +896,12 @@ func (m *CountyMutation) ResetType() {
 
 // SetPid sets the "pid" field.
 func (m *CountyMutation) SetPid(u uint32) {
-	m.pid = &u
-	m.addpid = nil
+	m.city = &u
 }
 
 // Pid returns the value of the "pid" field in the mutation.
 func (m *CountyMutation) Pid() (r uint32, exists bool) {
-	v := m.pid
+	v := m.city
 	if v == nil {
 		return
 	}
@@ -786,28 +925,61 @@ func (m *CountyMutation) OldPid(ctx context.Context) (v uint32, err error) {
 	return oldValue.Pid, nil
 }
 
-// AddPid adds u to the "pid" field.
-func (m *CountyMutation) AddPid(u int32) {
-	if m.addpid != nil {
-		*m.addpid += u
-	} else {
-		m.addpid = &u
-	}
+// ClearPid clears the value of the "pid" field.
+func (m *CountyMutation) ClearPid() {
+	m.city = nil
+	m.clearedFields[county.FieldPid] = struct{}{}
 }
 
-// AddedPid returns the value that was added to the "pid" field in this mutation.
-func (m *CountyMutation) AddedPid() (r int32, exists bool) {
-	v := m.addpid
-	if v == nil {
-		return
-	}
-	return *v, true
+// PidCleared returns if the "pid" field was cleared in this mutation.
+func (m *CountyMutation) PidCleared() bool {
+	_, ok := m.clearedFields[county.FieldPid]
+	return ok
 }
 
 // ResetPid resets all changes to the "pid" field.
 func (m *CountyMutation) ResetPid() {
-	m.pid = nil
-	m.addpid = nil
+	m.city = nil
+	delete(m.clearedFields, county.FieldPid)
+}
+
+// SetCityID sets the "city" edge to the City entity by id.
+func (m *CountyMutation) SetCityID(id uint32) {
+	m.city = &id
+}
+
+// ClearCity clears the "city" edge to the City entity.
+func (m *CountyMutation) ClearCity() {
+	m.clearedcity = true
+}
+
+// CityCleared reports if the "city" edge to the City entity was cleared.
+func (m *CountyMutation) CityCleared() bool {
+	return m.PidCleared() || m.clearedcity
+}
+
+// CityID returns the "city" edge ID in the mutation.
+func (m *CountyMutation) CityID() (id uint32, exists bool) {
+	if m.city != nil {
+		return *m.city, true
+	}
+	return
+}
+
+// CityIDs returns the "city" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CityID instead. It exists only for internal usage by the builders.
+func (m *CountyMutation) CityIDs() (ids []uint32) {
+	if id := m.city; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCity resets all changes to the "city" edge.
+func (m *CountyMutation) ResetCity() {
+	m.city = nil
+	m.clearedcity = false
 }
 
 // Where appends a list predicates to the CountyMutation builder.
@@ -851,7 +1023,7 @@ func (m *CountyMutation) Fields() []string {
 	if m._type != nil {
 		fields = append(fields, county.FieldType)
 	}
-	if m.pid != nil {
+	if m.city != nil {
 		fields = append(fields, county.FieldPid)
 	}
 	return fields
@@ -924,9 +1096,6 @@ func (m *CountyMutation) AddedFields() []string {
 	if m.add_type != nil {
 		fields = append(fields, county.FieldType)
 	}
-	if m.addpid != nil {
-		fields = append(fields, county.FieldPid)
-	}
 	return fields
 }
 
@@ -937,8 +1106,6 @@ func (m *CountyMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case county.FieldType:
 		return m.AddedType()
-	case county.FieldPid:
-		return m.AddedPid()
 	}
 	return nil, false
 }
@@ -955,13 +1122,6 @@ func (m *CountyMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddType(v)
 		return nil
-	case county.FieldPid:
-		v, ok := value.(int32)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddPid(v)
-		return nil
 	}
 	return fmt.Errorf("unknown County numeric field %s", name)
 }
@@ -969,7 +1129,11 @@ func (m *CountyMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *CountyMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(county.FieldPid) {
+		fields = append(fields, county.FieldPid)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -982,6 +1146,11 @@ func (m *CountyMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CountyMutation) ClearField(name string) error {
+	switch name {
+	case county.FieldPid:
+		m.ClearPid()
+		return nil
+	}
 	return fmt.Errorf("unknown County nullable field %s", name)
 }
 
@@ -1004,19 +1173,28 @@ func (m *CountyMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *CountyMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.city != nil {
+		edges = append(edges, county.EdgeCity)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *CountyMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case county.EdgeCity:
+		if id := m.city; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CountyMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -1028,25 +1206,42 @@ func (m *CountyMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *CountyMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedcity {
+		edges = append(edges, county.EdgeCity)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *CountyMutation) EdgeCleared(name string) bool {
+	switch name {
+	case county.EdgeCity:
+		return m.clearedcity
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *CountyMutation) ClearEdge(name string) error {
+	switch name {
+	case county.EdgeCity:
+		m.ClearCity()
+		return nil
+	}
 	return fmt.Errorf("unknown County unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *CountyMutation) ResetEdge(name string) error {
+	switch name {
+	case county.EdgeCity:
+		m.ResetCity()
+		return nil
+	}
 	return fmt.Errorf("unknown County edge %s", name)
 }
 
@@ -1677,6 +1872,9 @@ type ProvinceMutation struct {
 	_type         *uint32
 	add_type      *int32
 	clearedFields map[string]struct{}
+	cities        map[uint32]struct{}
+	removedcities map[uint32]struct{}
+	clearedcities bool
 	done          bool
 	oldValue      func(context.Context) (*Province, error)
 	predicates    []predicate.Province
@@ -1878,6 +2076,60 @@ func (m *ProvinceMutation) ResetType() {
 	m.add_type = nil
 }
 
+// AddCityIDs adds the "cities" edge to the City entity by ids.
+func (m *ProvinceMutation) AddCityIDs(ids ...uint32) {
+	if m.cities == nil {
+		m.cities = make(map[uint32]struct{})
+	}
+	for i := range ids {
+		m.cities[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCities clears the "cities" edge to the City entity.
+func (m *ProvinceMutation) ClearCities() {
+	m.clearedcities = true
+}
+
+// CitiesCleared reports if the "cities" edge to the City entity was cleared.
+func (m *ProvinceMutation) CitiesCleared() bool {
+	return m.clearedcities
+}
+
+// RemoveCityIDs removes the "cities" edge to the City entity by IDs.
+func (m *ProvinceMutation) RemoveCityIDs(ids ...uint32) {
+	if m.removedcities == nil {
+		m.removedcities = make(map[uint32]struct{})
+	}
+	for i := range ids {
+		delete(m.cities, ids[i])
+		m.removedcities[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCities returns the removed IDs of the "cities" edge to the City entity.
+func (m *ProvinceMutation) RemovedCitiesIDs() (ids []uint32) {
+	for id := range m.removedcities {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CitiesIDs returns the "cities" edge IDs in the mutation.
+func (m *ProvinceMutation) CitiesIDs() (ids []uint32) {
+	for id := range m.cities {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCities resets all changes to the "cities" edge.
+func (m *ProvinceMutation) ResetCities() {
+	m.cities = nil
+	m.clearedcities = false
+	m.removedcities = nil
+}
+
 // Where appends a list predicates to the ProvinceMutation builder.
 func (m *ProvinceMutation) Where(ps ...predicate.Province) {
 	m.predicates = append(m.predicates, ps...)
@@ -2043,48 +2295,84 @@ func (m *ProvinceMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *ProvinceMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.cities != nil {
+		edges = append(edges, province.EdgeCities)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *ProvinceMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case province.EdgeCities:
+		ids := make([]ent.Value, 0, len(m.cities))
+		for id := range m.cities {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *ProvinceMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedcities != nil {
+		edges = append(edges, province.EdgeCities)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *ProvinceMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case province.EdgeCities:
+		ids := make([]ent.Value, 0, len(m.removedcities))
+		for id := range m.removedcities {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *ProvinceMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedcities {
+		edges = append(edges, province.EdgeCities)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *ProvinceMutation) EdgeCleared(name string) bool {
+	switch name {
+	case province.EdgeCities:
+		return m.clearedcities
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *ProvinceMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Province unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *ProvinceMutation) ResetEdge(name string) error {
+	switch name {
+	case province.EdgeCities:
+		m.ResetCities()
+		return nil
+	}
 	return fmt.Errorf("unknown Province edge %s", name)
 }

@@ -18,6 +18,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -311,6 +312,38 @@ func (c *CityClient) GetX(ctx context.Context, id uint32) *City {
 	return obj
 }
 
+// QueryProvinces queries the provinces edge of a City.
+func (c *CityClient) QueryProvinces(ci *City) *ProvinceQuery {
+	query := (&ProvinceClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(city.Table, city.FieldID, id),
+			sqlgraph.To(province.Table, province.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, city.ProvincesTable, city.ProvincesColumn),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryCounties queries the counties edge of a City.
+func (c *CityClient) QueryCounties(ci *City) *CountyQuery {
+	query := (&CountyClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ci.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(city.Table, city.FieldID, id),
+			sqlgraph.To(county.Table, county.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, city.CountiesTable, city.CountiesColumn),
+		)
+		fromV = sqlgraph.Neighbors(ci.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *CityClient) Hooks() []Hook {
 	return c.hooks.City
@@ -427,6 +460,22 @@ func (c *CountyClient) GetX(ctx context.Context, id uint32) *County {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryCity queries the city edge of a County.
+func (c *CountyClient) QueryCity(co *County) *CityQuery {
+	query := (&CityClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(county.Table, county.FieldID, id),
+			sqlgraph.To(city.Table, city.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, county.CityTable, county.CityColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -663,6 +712,22 @@ func (c *ProvinceClient) GetX(ctx context.Context, id uint32) *Province {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryCities queries the cities edge of a Province.
+func (c *ProvinceClient) QueryCities(pr *Province) *CityQuery {
+	query := (&CityClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(province.Table, province.FieldID, id),
+			sqlgraph.To(city.Table, city.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, province.CitiesTable, province.CitiesColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

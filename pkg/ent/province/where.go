@@ -6,6 +6,7 @@ import (
 	"expezgo/pkg/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -166,6 +167,29 @@ func TypeLT(v uint32) predicate.Province {
 // TypeLTE applies the LTE predicate on the "type" field.
 func TypeLTE(v uint32) predicate.Province {
 	return predicate.Province(sql.FieldLTE(FieldType, v))
+}
+
+// HasCities applies the HasEdge predicate on the "cities" edge.
+func HasCities() predicate.Province {
+	return predicate.Province(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CitiesTable, CitiesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCitiesWith applies the HasEdge predicate on the "cities" edge with a given conditions (other predicates).
+func HasCitiesWith(preds ...predicate.City) predicate.Province {
+	return predicate.Province(func(s *sql.Selector) {
+		step := newCitiesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

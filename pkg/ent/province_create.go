@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"errors"
+	"expezgo/pkg/ent/city"
 	"expezgo/pkg/ent/province"
 	"fmt"
 
@@ -43,6 +44,21 @@ func (pc *ProvinceCreate) SetNillableType(u *uint32) *ProvinceCreate {
 func (pc *ProvinceCreate) SetID(u uint32) *ProvinceCreate {
 	pc.mutation.SetID(u)
 	return pc
+}
+
+// AddCityIDs adds the "cities" edge to the City entity by IDs.
+func (pc *ProvinceCreate) AddCityIDs(ids ...uint32) *ProvinceCreate {
+	pc.mutation.AddCityIDs(ids...)
+	return pc
+}
+
+// AddCities adds the "cities" edges to the City entity.
+func (pc *ProvinceCreate) AddCities(c ...*City) *ProvinceCreate {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return pc.AddCityIDs(ids...)
 }
 
 // Mutation returns the ProvinceMutation object of the builder.
@@ -138,6 +154,22 @@ func (pc *ProvinceCreate) createSpec() (*Province, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.GetType(); ok {
 		_spec.SetField(province.FieldType, field.TypeUint32, value)
 		_node.Type = value
+	}
+	if nodes := pc.mutation.CitiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   province.CitiesTable,
+			Columns: []string{province.CitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

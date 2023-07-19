@@ -4,6 +4,7 @@ package county
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -17,8 +18,17 @@ const (
 	FieldType = "type"
 	// FieldPid holds the string denoting the pid field in the database.
 	FieldPid = "pid"
+	// EdgeCity holds the string denoting the city edge name in mutations.
+	EdgeCity = "city"
 	// Table holds the table name of the county in the database.
 	Table = "county"
+	// CityTable is the table that holds the city relation/edge.
+	CityTable = "county"
+	// CityInverseTable is the table name for the City entity.
+	// It exists in this package in order to avoid circular dependency with the "city" package.
+	CityInverseTable = "city"
+	// CityColumn is the table column denoting the city relation/edge.
+	CityColumn = "pid"
 )
 
 // Columns holds all SQL columns for county fields.
@@ -67,4 +77,18 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 // ByPid orders the results by the pid field.
 func ByPid(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPid, opts...).ToFunc()
+}
+
+// ByCityField orders the results by city field.
+func ByCityField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCityStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newCityStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CityInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, CityTable, CityColumn),
+	)
 }

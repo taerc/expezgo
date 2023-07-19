@@ -4,6 +4,8 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
+	"expezgo/pkg/ent/city"
 	"expezgo/pkg/ent/predicate"
 	"expezgo/pkg/ent/province"
 	"fmt"
@@ -21,6 +23,8 @@ type ProvinceQuery struct {
 	order      []province.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Province
+	withCities *CityQuery
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +59,28 @@ func (pq *ProvinceQuery) Unique(unique bool) *ProvinceQuery {
 func (pq *ProvinceQuery) Order(o ...province.OrderOption) *ProvinceQuery {
 	pq.order = append(pq.order, o...)
 	return pq
+}
+
+// QueryCities chains the current query on the "cities" edge.
+func (pq *ProvinceQuery) QueryCities() *CityQuery {
+	query := (&CityClient{config: pq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := pq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := pq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(province.Table, province.FieldID, selector),
+			sqlgraph.To(city.Table, city.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, province.CitiesTable, province.CitiesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(pq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Province entity from the query.
@@ -249,10 +275,22 @@ func (pq *ProvinceQuery) Clone() *ProvinceQuery {
 		order:      append([]province.OrderOption{}, pq.order...),
 		inters:     append([]Interceptor{}, pq.inters...),
 		predicates: append([]predicate.Province{}, pq.predicates...),
+		withCities: pq.withCities.Clone(),
 		// clone intermediate query.
 		sql:  pq.sql.Clone(),
 		path: pq.path,
 	}
+}
+
+// WithCities tells the query-builder to eager-load the nodes that are connected to
+// the "cities" edge. The optional arguments are used to configure the query builder of the edge.
+func (pq *ProvinceQuery) WithCities(opts ...func(*CityQuery)) *ProvinceQuery {
+	query := (&CityClient{config: pq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	pq.withCities = query
+	return pq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,8 +369,11 @@ func (pq *ProvinceQuery) prepareQuery(ctx context.Context) error {
 
 func (pq *ProvinceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Province, error) {
 	var (
-		nodes = []*Province{}
-		_spec = pq.querySpec()
+		nodes       = []*Province{}
+		_spec       = pq.querySpec()
+		loadedTypes = [1]bool{
+			pq.withCities != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Province).scanValues(nil, columns)
@@ -340,7 +381,11 @@ func (pq *ProvinceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Province{config: pq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
+	}
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
@@ -351,11 +396,52 @@ func (pq *ProvinceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Pro
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := pq.withCities; query != nil {
+		if err := pq.loadCities(ctx, query, nodes,
+			func(n *Province) { n.Edges.Cities = []*City{} },
+			func(n *Province, e *City) { n.Edges.Cities = append(n.Edges.Cities, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (pq *ProvinceQuery) loadCities(ctx context.Context, query *CityQuery, nodes []*Province, init func(*Province), assign func(*Province, *City)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uint32]*Province)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(city.FieldPid)
+	}
+	query.Where(predicate.City(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(province.CitiesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.Pid
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "pid" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (pq *ProvinceQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := pq.querySpec()
+	if len(pq.modifiers) > 0 {
+		_spec.Modifiers = pq.modifiers
+	}
 	_spec.Node.Columns = pq.ctx.Fields
 	if len(pq.ctx.Fields) > 0 {
 		_spec.Unique = pq.ctx.Unique != nil && *pq.ctx.Unique
@@ -418,6 +504,9 @@ func (pq *ProvinceQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if pq.ctx.Unique != nil && *pq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range pq.modifiers {
+		m(selector)
+	}
 	for _, p := range pq.predicates {
 		p(selector)
 	}
@@ -433,6 +522,12 @@ func (pq *ProvinceQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (pq *ProvinceQuery) Modify(modifiers ...func(s *sql.Selector)) *ProvinceSelect {
+	pq.modifiers = append(pq.modifiers, modifiers...)
+	return pq.Select()
 }
 
 // ProvinceGroupBy is the group-by builder for Province entities.
@@ -523,4 +618,10 @@ func (ps *ProvinceSelect) sqlScan(ctx context.Context, root *ProvinceQuery, v an
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ps *ProvinceSelect) Modify(modifiers ...func(s *sql.Selector)) *ProvinceSelect {
+	ps.modifiers = append(ps.modifiers, modifiers...)
+	return ps
 }

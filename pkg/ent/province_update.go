@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"errors"
+	"expezgo/pkg/ent/city"
 	"expezgo/pkg/ent/predicate"
 	"expezgo/pkg/ent/province"
 	"fmt"
@@ -17,8 +18,9 @@ import (
 // ProvinceUpdate is the builder for updating Province entities.
 type ProvinceUpdate struct {
 	config
-	hooks    []Hook
-	mutation *ProvinceMutation
+	hooks     []Hook
+	mutation  *ProvinceMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the ProvinceUpdate builder.
@@ -54,9 +56,45 @@ func (pu *ProvinceUpdate) AddType(u int32) *ProvinceUpdate {
 	return pu
 }
 
+// AddCityIDs adds the "cities" edge to the City entity by IDs.
+func (pu *ProvinceUpdate) AddCityIDs(ids ...uint32) *ProvinceUpdate {
+	pu.mutation.AddCityIDs(ids...)
+	return pu
+}
+
+// AddCities adds the "cities" edges to the City entity.
+func (pu *ProvinceUpdate) AddCities(c ...*City) *ProvinceUpdate {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return pu.AddCityIDs(ids...)
+}
+
 // Mutation returns the ProvinceMutation object of the builder.
 func (pu *ProvinceUpdate) Mutation() *ProvinceMutation {
 	return pu.mutation
+}
+
+// ClearCities clears all "cities" edges to the City entity.
+func (pu *ProvinceUpdate) ClearCities() *ProvinceUpdate {
+	pu.mutation.ClearCities()
+	return pu
+}
+
+// RemoveCityIDs removes the "cities" edge to City entities by IDs.
+func (pu *ProvinceUpdate) RemoveCityIDs(ids ...uint32) *ProvinceUpdate {
+	pu.mutation.RemoveCityIDs(ids...)
+	return pu
+}
+
+// RemoveCities removes "cities" edges to City entities.
+func (pu *ProvinceUpdate) RemoveCities(c ...*City) *ProvinceUpdate {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return pu.RemoveCityIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -96,6 +134,12 @@ func (pu *ProvinceUpdate) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (pu *ProvinceUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ProvinceUpdate {
+	pu.modifiers = append(pu.modifiers, modifiers...)
+	return pu
+}
+
 func (pu *ProvinceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := pu.check(); err != nil {
 		return n, err
@@ -117,6 +161,52 @@ func (pu *ProvinceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.AddedType(); ok {
 		_spec.AddField(province.FieldType, field.TypeUint32, value)
 	}
+	if pu.mutation.CitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   province.CitiesTable,
+			Columns: []string{province.CitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.RemovedCitiesIDs(); len(nodes) > 0 && !pu.mutation.CitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   province.CitiesTable,
+			Columns: []string{province.CitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := pu.mutation.CitiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   province.CitiesTable,
+			Columns: []string{province.CitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	_spec.AddModifiers(pu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, pu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{province.Label}
@@ -132,9 +222,10 @@ func (pu *ProvinceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // ProvinceUpdateOne is the builder for updating a single Province entity.
 type ProvinceUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *ProvinceMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *ProvinceMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetName sets the "name" field.
@@ -164,9 +255,45 @@ func (puo *ProvinceUpdateOne) AddType(u int32) *ProvinceUpdateOne {
 	return puo
 }
 
+// AddCityIDs adds the "cities" edge to the City entity by IDs.
+func (puo *ProvinceUpdateOne) AddCityIDs(ids ...uint32) *ProvinceUpdateOne {
+	puo.mutation.AddCityIDs(ids...)
+	return puo
+}
+
+// AddCities adds the "cities" edges to the City entity.
+func (puo *ProvinceUpdateOne) AddCities(c ...*City) *ProvinceUpdateOne {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return puo.AddCityIDs(ids...)
+}
+
 // Mutation returns the ProvinceMutation object of the builder.
 func (puo *ProvinceUpdateOne) Mutation() *ProvinceMutation {
 	return puo.mutation
+}
+
+// ClearCities clears all "cities" edges to the City entity.
+func (puo *ProvinceUpdateOne) ClearCities() *ProvinceUpdateOne {
+	puo.mutation.ClearCities()
+	return puo
+}
+
+// RemoveCityIDs removes the "cities" edge to City entities by IDs.
+func (puo *ProvinceUpdateOne) RemoveCityIDs(ids ...uint32) *ProvinceUpdateOne {
+	puo.mutation.RemoveCityIDs(ids...)
+	return puo
+}
+
+// RemoveCities removes "cities" edges to City entities.
+func (puo *ProvinceUpdateOne) RemoveCities(c ...*City) *ProvinceUpdateOne {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return puo.RemoveCityIDs(ids...)
 }
 
 // Where appends a list predicates to the ProvinceUpdate builder.
@@ -219,6 +346,12 @@ func (puo *ProvinceUpdateOne) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (puo *ProvinceUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *ProvinceUpdateOne {
+	puo.modifiers = append(puo.modifiers, modifiers...)
+	return puo
+}
+
 func (puo *ProvinceUpdateOne) sqlSave(ctx context.Context) (_node *Province, err error) {
 	if err := puo.check(); err != nil {
 		return _node, err
@@ -257,6 +390,52 @@ func (puo *ProvinceUpdateOne) sqlSave(ctx context.Context) (_node *Province, err
 	if value, ok := puo.mutation.AddedType(); ok {
 		_spec.AddField(province.FieldType, field.TypeUint32, value)
 	}
+	if puo.mutation.CitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   province.CitiesTable,
+			Columns: []string{province.CitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.RemovedCitiesIDs(); len(nodes) > 0 && !puo.mutation.CitiesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   province.CitiesTable,
+			Columns: []string{province.CitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := puo.mutation.CitiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   province.CitiesTable,
+			Columns: []string{province.CitiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	_spec.AddModifiers(puo.modifiers...)
 	_node = &Province{config: puo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

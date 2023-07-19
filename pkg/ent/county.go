@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"expezgo/pkg/ent/city"
 	"expezgo/pkg/ent/county"
 	"fmt"
 	"strings"
@@ -21,8 +22,33 @@ type County struct {
 	// Type holds the value of the "type" field.
 	Type uint32 `json:"type,omitempty"`
 	// Pid holds the value of the "pid" field.
-	Pid          uint32 `json:"pid,omitempty"`
+	Pid uint32 `json:"pid,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the CountyQuery when eager-loading is set.
+	Edges        CountyEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// CountyEdges holds the relations/edges for other nodes in the graph.
+type CountyEdges struct {
+	// City holds the value of the city edge.
+	City *City `json:"city,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CityOrErr returns the City value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e CountyEdges) CityOrErr() (*City, error) {
+	if e.loadedTypes[0] {
+		if e.City == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: city.Label}
+		}
+		return e.City, nil
+	}
+	return nil, &NotLoadedError{edge: "city"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -84,6 +110,11 @@ func (c *County) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (c *County) Value(name string) (ent.Value, error) {
 	return c.selectValues.Get(name)
+}
+
+// QueryCity queries the "city" edge of the County entity.
+func (c *County) QueryCity() *CityQuery {
+	return NewCountyClient(c.config).QueryCity(c)
 }
 
 // Update returns a builder for updating this County.

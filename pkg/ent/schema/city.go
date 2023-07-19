@@ -22,16 +22,17 @@ func (City) Annotations() []schema.Annotation {
 // Fields of the City.
 func (City) Fields() []ent.Field {
 	return []ent.Field{
-		field.Uint32("id").Unique(),
+		field.Uint32("id").Unique().StructTag("validate:\"gte=0,lte=130\""),
 		field.String("name").MaxLen(256),
 		field.Uint32("type").Default(0),
-		field.Uint32("pid"),
+		field.Uint32("pid").Optional(),
 	}
 }
 
 // Edges of the City.
 func (City) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("provinces", Province.Type).Ref("cities"),
+		edge.From("provinces", Province.Type).Field("pid").Ref("cities").Unique(),
+		edge.To("counties", County.Type),
 	}
 }

@@ -17,8 +17,9 @@ import (
 // LicenceUpdate is the builder for updating Licence entities.
 type LicenceUpdate struct {
 	config
-	hooks    []Hook
-	mutation *LicenceMutation
+	hooks     []Hook
+	mutation  *LicenceMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // Where appends a list predicates to the LicenceUpdate builder.
@@ -139,6 +140,12 @@ func (lu *LicenceUpdate) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (lu *LicenceUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LicenceUpdate {
+	lu.modifiers = append(lu.modifiers, modifiers...)
+	return lu
+}
+
 func (lu *LicenceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := lu.check(); err != nil {
 		return n, err
@@ -172,6 +179,7 @@ func (lu *LicenceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := lu.mutation.AddedCreateTime(); ok {
 		_spec.AddField(licence.FieldCreateTime, field.TypeInt64, value)
 	}
+	_spec.AddModifiers(lu.modifiers...)
 	if n, err = sqlgraph.UpdateNodes(ctx, lu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{licence.Label}
@@ -187,9 +195,10 @@ func (lu *LicenceUpdate) sqlSave(ctx context.Context) (n int, err error) {
 // LicenceUpdateOne is the builder for updating a single Licence entity.
 type LicenceUpdateOne struct {
 	config
-	fields   []string
-	hooks    []Hook
-	mutation *LicenceMutation
+	fields    []string
+	hooks     []Hook
+	mutation  *LicenceMutation
+	modifiers []func(*sql.UpdateBuilder)
 }
 
 // SetDevUUID sets the "dev_uuid" field.
@@ -317,6 +326,12 @@ func (luo *LicenceUpdateOne) check() error {
 	return nil
 }
 
+// Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
+func (luo *LicenceUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *LicenceUpdateOne {
+	luo.modifiers = append(luo.modifiers, modifiers...)
+	return luo
+}
+
 func (luo *LicenceUpdateOne) sqlSave(ctx context.Context) (_node *Licence, err error) {
 	if err := luo.check(); err != nil {
 		return _node, err
@@ -367,6 +382,7 @@ func (luo *LicenceUpdateOne) sqlSave(ctx context.Context) (_node *Licence, err e
 	if value, ok := luo.mutation.AddedCreateTime(); ok {
 		_spec.AddField(licence.FieldCreateTime, field.TypeInt64, value)
 	}
+	_spec.AddModifiers(luo.modifiers...)
 	_node = &Licence{config: luo.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues

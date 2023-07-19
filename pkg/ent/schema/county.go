@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -24,15 +25,14 @@ func (County) Fields() []ent.Field {
 		field.Uint32("id").Unique(),
 		field.String("name").MaxLen(256),
 		field.Uint32("type").Default(0),
-		field.Uint32("pid"),
+		field.Uint32("pid").Optional(),
 	}
 }
 
 // Edges of the County.
 func (County) Edges() []ent.Edge {
 
-	return nil
-	//return []ent.Edge{
-	//	edge.From("city", City.Type).Field("pid").Ref("counties"),
-	//}
+	return []ent.Edge{
+		edge.From("city", City.Type).Field("pid").Ref("counties").Unique(),
+	}
 }

@@ -5,6 +5,7 @@ package ent
 import (
 	"context"
 	"errors"
+	"expezgo/pkg/ent/city"
 	"expezgo/pkg/ent/county"
 	"fmt"
 
@@ -45,10 +46,37 @@ func (cc *CountyCreate) SetPid(u uint32) *CountyCreate {
 	return cc
 }
 
+// SetNillablePid sets the "pid" field if the given value is not nil.
+func (cc *CountyCreate) SetNillablePid(u *uint32) *CountyCreate {
+	if u != nil {
+		cc.SetPid(*u)
+	}
+	return cc
+}
+
 // SetID sets the "id" field.
 func (cc *CountyCreate) SetID(u uint32) *CountyCreate {
 	cc.mutation.SetID(u)
 	return cc
+}
+
+// SetCityID sets the "city" edge to the City entity by ID.
+func (cc *CountyCreate) SetCityID(id uint32) *CountyCreate {
+	cc.mutation.SetCityID(id)
+	return cc
+}
+
+// SetNillableCityID sets the "city" edge to the City entity by ID if the given value is not nil.
+func (cc *CountyCreate) SetNillableCityID(id *uint32) *CountyCreate {
+	if id != nil {
+		cc = cc.SetCityID(*id)
+	}
+	return cc
+}
+
+// SetCity sets the "city" edge to the City entity.
+func (cc *CountyCreate) SetCity(c *City) *CountyCreate {
+	return cc.SetCityID(c.ID)
 }
 
 // Mutation returns the CountyMutation object of the builder.
@@ -105,9 +133,6 @@ func (cc *CountyCreate) check() error {
 	if _, ok := cc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "County.type"`)}
 	}
-	if _, ok := cc.mutation.Pid(); !ok {
-		return &ValidationError{Name: "pid", err: errors.New(`ent: missing required field "County.pid"`)}
-	}
 	return nil
 }
 
@@ -148,9 +173,22 @@ func (cc *CountyCreate) createSpec() (*County, *sqlgraph.CreateSpec) {
 		_spec.SetField(county.FieldType, field.TypeUint32, value)
 		_node.Type = value
 	}
-	if value, ok := cc.mutation.Pid(); ok {
-		_spec.SetField(county.FieldPid, field.TypeUint32, value)
-		_node.Pid = value
+	if nodes := cc.mutation.CityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   county.CityTable,
+			Columns: []string{county.CityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(city.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.Pid = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

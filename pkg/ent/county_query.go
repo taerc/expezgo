@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"expezgo/pkg/ent/city"
 	"expezgo/pkg/ent/county"
 	"expezgo/pkg/ent/predicate"
 	"fmt"
@@ -21,6 +22,8 @@ type CountyQuery struct {
 	order      []county.OrderOption
 	inters     []Interceptor
 	predicates []predicate.County
+	withCity   *CityQuery
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -55,6 +58,28 @@ func (cq *CountyQuery) Unique(unique bool) *CountyQuery {
 func (cq *CountyQuery) Order(o ...county.OrderOption) *CountyQuery {
 	cq.order = append(cq.order, o...)
 	return cq
+}
+
+// QueryCity chains the current query on the "city" edge.
+func (cq *CountyQuery) QueryCity() *CityQuery {
+	query := (&CityClient{config: cq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(county.Table, county.FieldID, selector),
+			sqlgraph.To(city.Table, city.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, county.CityTable, county.CityColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first County entity from the query.
@@ -249,10 +274,22 @@ func (cq *CountyQuery) Clone() *CountyQuery {
 		order:      append([]county.OrderOption{}, cq.order...),
 		inters:     append([]Interceptor{}, cq.inters...),
 		predicates: append([]predicate.County{}, cq.predicates...),
+		withCity:   cq.withCity.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
 	}
+}
+
+// WithCity tells the query-builder to eager-load the nodes that are connected to
+// the "city" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CountyQuery) WithCity(opts ...func(*CityQuery)) *CountyQuery {
+	query := (&CityClient{config: cq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withCity = query
+	return cq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -331,8 +368,11 @@ func (cq *CountyQuery) prepareQuery(ctx context.Context) error {
 
 func (cq *CountyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*County, error) {
 	var (
-		nodes = []*County{}
-		_spec = cq.querySpec()
+		nodes       = []*County{}
+		_spec       = cq.querySpec()
+		loadedTypes = [1]bool{
+			cq.withCity != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*County).scanValues(nil, columns)
@@ -340,7 +380,11 @@ func (cq *CountyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Count
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &County{config: cq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
+	}
+	if len(cq.modifiers) > 0 {
+		_spec.Modifiers = cq.modifiers
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
@@ -351,11 +395,50 @@ func (cq *CountyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Count
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := cq.withCity; query != nil {
+		if err := cq.loadCity(ctx, query, nodes, nil,
+			func(n *County, e *City) { n.Edges.City = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (cq *CountyQuery) loadCity(ctx context.Context, query *CityQuery, nodes []*County, init func(*County), assign func(*County, *City)) error {
+	ids := make([]uint32, 0, len(nodes))
+	nodeids := make(map[uint32][]*County)
+	for i := range nodes {
+		fk := nodes[i].Pid
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(city.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "pid" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (cq *CountyQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := cq.querySpec()
+	if len(cq.modifiers) > 0 {
+		_spec.Modifiers = cq.modifiers
+	}
 	_spec.Node.Columns = cq.ctx.Fields
 	if len(cq.ctx.Fields) > 0 {
 		_spec.Unique = cq.ctx.Unique != nil && *cq.ctx.Unique
@@ -378,6 +461,9 @@ func (cq *CountyQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != county.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if cq.withCity != nil {
+			_spec.Node.AddColumnOnce(county.FieldPid)
 		}
 	}
 	if ps := cq.predicates; len(ps) > 0 {
@@ -418,6 +504,9 @@ func (cq *CountyQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if cq.ctx.Unique != nil && *cq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range cq.modifiers {
+		m(selector)
+	}
 	for _, p := range cq.predicates {
 		p(selector)
 	}
@@ -433,6 +522,12 @@ func (cq *CountyQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (cq *CountyQuery) Modify(modifiers ...func(s *sql.Selector)) *CountySelect {
+	cq.modifiers = append(cq.modifiers, modifiers...)
+	return cq.Select()
 }
 
 // CountyGroupBy is the group-by builder for County entities.
@@ -523,4 +618,10 @@ func (cs *CountySelect) sqlScan(ctx context.Context, root *CountyQuery, v any) e
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (cs *CountySelect) Modify(modifiers ...func(s *sql.Selector)) *CountySelect {
+	cs.modifiers = append(cs.modifiers, modifiers...)
+	return cs
 }

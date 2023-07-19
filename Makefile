@@ -33,8 +33,11 @@ publish:version
 	git push origin --tags
 
 expent:research/exp_ent_sql.go
-	go generate pkg/ext
+	#go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/modifier ./pkg/ent/schema
 	go build -o build/expent -gcflags="all=-N -l" research/exp_ent_sql.go
 
 geo:research/exp_ent_geo_data.go
 	go build -o build/geo research/exp_ent_geo_data.go
+
+context:research/exp_14_context.go
+	go build -o build/context research/exp_14_context.go

@@ -21,6 +21,7 @@ type LicenceQuery struct {
 	order      []licence.OrderOption
 	inters     []Interceptor
 	predicates []predicate.Licence
+	modifiers  []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -342,6 +343,9 @@ func (lq *LicenceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Lice
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
+	if len(lq.modifiers) > 0 {
+		_spec.Modifiers = lq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -356,6 +360,9 @@ func (lq *LicenceQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Lice
 
 func (lq *LicenceQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := lq.querySpec()
+	if len(lq.modifiers) > 0 {
+		_spec.Modifiers = lq.modifiers
+	}
 	_spec.Node.Columns = lq.ctx.Fields
 	if len(lq.ctx.Fields) > 0 {
 		_spec.Unique = lq.ctx.Unique != nil && *lq.ctx.Unique
@@ -418,6 +425,9 @@ func (lq *LicenceQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if lq.ctx.Unique != nil && *lq.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range lq.modifiers {
+		m(selector)
+	}
 	for _, p := range lq.predicates {
 		p(selector)
 	}
@@ -433,6 +443,12 @@ func (lq *LicenceQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (lq *LicenceQuery) Modify(modifiers ...func(s *sql.Selector)) *LicenceSelect {
+	lq.modifiers = append(lq.modifiers, modifiers...)
+	return lq.Select()
 }
 
 // LicenceGroupBy is the group-by builder for Licence entities.
@@ -523,4 +539,10 @@ func (ls *LicenceSelect) sqlScan(ctx context.Context, root *LicenceQuery, v any)
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
+}
+
+// Modify adds a query modifier for attaching custom logic to queries.
+func (ls *LicenceSelect) Modify(modifiers ...func(s *sql.Selector)) *LicenceSelect {
+	ls.modifiers = append(ls.modifiers, modifiers...)
+	return ls
 }

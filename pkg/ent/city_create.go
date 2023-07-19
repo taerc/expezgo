@@ -6,6 +6,8 @@ import (
 	"context"
 	"errors"
 	"expezgo/pkg/ent/city"
+	"expezgo/pkg/ent/county"
+	"expezgo/pkg/ent/province"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -45,10 +47,52 @@ func (cc *CityCreate) SetPid(u uint32) *CityCreate {
 	return cc
 }
 
+// SetNillablePid sets the "pid" field if the given value is not nil.
+func (cc *CityCreate) SetNillablePid(u *uint32) *CityCreate {
+	if u != nil {
+		cc.SetPid(*u)
+	}
+	return cc
+}
+
 // SetID sets the "id" field.
 func (cc *CityCreate) SetID(u uint32) *CityCreate {
 	cc.mutation.SetID(u)
 	return cc
+}
+
+// SetProvincesID sets the "provinces" edge to the Province entity by ID.
+func (cc *CityCreate) SetProvincesID(id uint32) *CityCreate {
+	cc.mutation.SetProvincesID(id)
+	return cc
+}
+
+// SetNillableProvincesID sets the "provinces" edge to the Province entity by ID if the given value is not nil.
+func (cc *CityCreate) SetNillableProvincesID(id *uint32) *CityCreate {
+	if id != nil {
+		cc = cc.SetProvincesID(*id)
+	}
+	return cc
+}
+
+// SetProvinces sets the "provinces" edge to the Province entity.
+func (cc *CityCreate) SetProvinces(p *Province) *CityCreate {
+	return cc.SetProvincesID(p.ID)
+}
+
+// AddCountyIDs adds the "counties" edge to the County entity by IDs.
+func (cc *CityCreate) AddCountyIDs(ids ...uint32) *CityCreate {
+	cc.mutation.AddCountyIDs(ids...)
+	return cc
+}
+
+// AddCounties adds the "counties" edges to the County entity.
+func (cc *CityCreate) AddCounties(c ...*County) *CityCreate {
+	ids := make([]uint32, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return cc.AddCountyIDs(ids...)
 }
 
 // Mutation returns the CityMutation object of the builder.
@@ -105,9 +149,6 @@ func (cc *CityCreate) check() error {
 	if _, ok := cc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "City.type"`)}
 	}
-	if _, ok := cc.mutation.Pid(); !ok {
-		return &ValidationError{Name: "pid", err: errors.New(`ent: missing required field "City.pid"`)}
-	}
 	return nil
 }
 
@@ -148,9 +189,38 @@ func (cc *CityCreate) createSpec() (*City, *sqlgraph.CreateSpec) {
 		_spec.SetField(city.FieldType, field.TypeUint32, value)
 		_node.Type = value
 	}
-	if value, ok := cc.mutation.Pid(); ok {
-		_spec.SetField(city.FieldPid, field.TypeUint32, value)
-		_node.Pid = value
+	if nodes := cc.mutation.ProvincesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   city.ProvincesTable,
+			Columns: []string{city.ProvincesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(province.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.Pid = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := cc.mutation.CountiesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   city.CountiesTable,
+			Columns: []string{city.CountiesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(county.FieldID, field.TypeUint32),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

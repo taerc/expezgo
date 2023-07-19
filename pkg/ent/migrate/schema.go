@@ -14,26 +14,42 @@ var (
 		{Name: "id", Type: field.TypeUint32, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 256},
 		{Name: "type", Type: field.TypeUint32, Default: 0},
-		{Name: "pid", Type: field.TypeUint32},
+		{Name: "pid", Type: field.TypeUint32, Nullable: true},
 	}
 	// CityTable holds the schema information for the "city" table.
 	CityTable = &schema.Table{
 		Name:       "city",
 		Columns:    CityColumns,
 		PrimaryKey: []*schema.Column{CityColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "city_province_cities",
+				Columns:    []*schema.Column{CityColumns[3]},
+				RefColumns: []*schema.Column{ProvinceColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// CountyColumns holds the columns for the "county" table.
 	CountyColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint32, Increment: true},
 		{Name: "name", Type: field.TypeString, Size: 256},
 		{Name: "type", Type: field.TypeUint32, Default: 0},
-		{Name: "pid", Type: field.TypeUint32},
+		{Name: "pid", Type: field.TypeUint32, Nullable: true},
 	}
 	// CountyTable holds the schema information for the "county" table.
 	CountyTable = &schema.Table{
 		Name:       "county",
 		Columns:    CountyColumns,
 		PrimaryKey: []*schema.Column{CountyColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "county_city_counties",
+				Columns:    []*schema.Column{CountyColumns[3]},
+				RefColumns: []*schema.Column{CityColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// LicSnColumns holds the columns for the "lic_sn" table.
 	LicSnColumns = []*schema.Column{
@@ -72,9 +88,11 @@ var (
 )
 
 func init() {
+	CityTable.ForeignKeys[0].RefTable = ProvinceTable
 	CityTable.Annotation = &entsql.Annotation{
 		Table: "city",
 	}
+	CountyTable.ForeignKeys[0].RefTable = CityTable
 	CountyTable.Annotation = &entsql.Annotation{
 		Table: "county",
 	}

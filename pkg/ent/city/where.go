@@ -6,6 +6,7 @@ import (
 	"expezgo/pkg/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -193,24 +194,60 @@ func PidNotIn(vs ...uint32) predicate.City {
 	return predicate.City(sql.FieldNotIn(FieldPid, vs...))
 }
 
-// PidGT applies the GT predicate on the "pid" field.
-func PidGT(v uint32) predicate.City {
-	return predicate.City(sql.FieldGT(FieldPid, v))
+// PidIsNil applies the IsNil predicate on the "pid" field.
+func PidIsNil() predicate.City {
+	return predicate.City(sql.FieldIsNull(FieldPid))
 }
 
-// PidGTE applies the GTE predicate on the "pid" field.
-func PidGTE(v uint32) predicate.City {
-	return predicate.City(sql.FieldGTE(FieldPid, v))
+// PidNotNil applies the NotNil predicate on the "pid" field.
+func PidNotNil() predicate.City {
+	return predicate.City(sql.FieldNotNull(FieldPid))
 }
 
-// PidLT applies the LT predicate on the "pid" field.
-func PidLT(v uint32) predicate.City {
-	return predicate.City(sql.FieldLT(FieldPid, v))
+// HasProvinces applies the HasEdge predicate on the "provinces" edge.
+func HasProvinces() predicate.City {
+	return predicate.City(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ProvincesTable, ProvincesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
 }
 
-// PidLTE applies the LTE predicate on the "pid" field.
-func PidLTE(v uint32) predicate.City {
-	return predicate.City(sql.FieldLTE(FieldPid, v))
+// HasProvincesWith applies the HasEdge predicate on the "provinces" edge with a given conditions (other predicates).
+func HasProvincesWith(preds ...predicate.Province) predicate.City {
+	return predicate.City(func(s *sql.Selector) {
+		step := newProvincesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasCounties applies the HasEdge predicate on the "counties" edge.
+func HasCounties() predicate.City {
+	return predicate.City(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CountiesTable, CountiesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCountiesWith applies the HasEdge predicate on the "counties" edge with a given conditions (other predicates).
+func HasCountiesWith(preds ...predicate.County) predicate.City {
+	return predicate.City(func(s *sql.Selector) {
+		step := newCountiesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

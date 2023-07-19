@@ -6,6 +6,7 @@ import (
 	"expezgo/pkg/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -193,24 +194,37 @@ func PidNotIn(vs ...uint32) predicate.County {
 	return predicate.County(sql.FieldNotIn(FieldPid, vs...))
 }
 
-// PidGT applies the GT predicate on the "pid" field.
-func PidGT(v uint32) predicate.County {
-	return predicate.County(sql.FieldGT(FieldPid, v))
+// PidIsNil applies the IsNil predicate on the "pid" field.
+func PidIsNil() predicate.County {
+	return predicate.County(sql.FieldIsNull(FieldPid))
 }
 
-// PidGTE applies the GTE predicate on the "pid" field.
-func PidGTE(v uint32) predicate.County {
-	return predicate.County(sql.FieldGTE(FieldPid, v))
+// PidNotNil applies the NotNil predicate on the "pid" field.
+func PidNotNil() predicate.County {
+	return predicate.County(sql.FieldNotNull(FieldPid))
 }
 
-// PidLT applies the LT predicate on the "pid" field.
-func PidLT(v uint32) predicate.County {
-	return predicate.County(sql.FieldLT(FieldPid, v))
+// HasCity applies the HasEdge predicate on the "city" edge.
+func HasCity() predicate.County {
+	return predicate.County(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, CityTable, CityColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
 }
 
-// PidLTE applies the LTE predicate on the "pid" field.
-func PidLTE(v uint32) predicate.County {
-	return predicate.County(sql.FieldLTE(FieldPid, v))
+// HasCityWith applies the HasEdge predicate on the "city" edge with a given conditions (other predicates).
+func HasCityWith(preds ...predicate.City) predicate.County {
+	return predicate.County(func(s *sql.Selector) {
+		step := newCityStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

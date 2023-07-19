@@ -4,6 +4,7 @@ package city
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -17,8 +18,26 @@ const (
 	FieldType = "type"
 	// FieldPid holds the string denoting the pid field in the database.
 	FieldPid = "pid"
+	// EdgeProvinces holds the string denoting the provinces edge name in mutations.
+	EdgeProvinces = "provinces"
+	// EdgeCounties holds the string denoting the counties edge name in mutations.
+	EdgeCounties = "counties"
 	// Table holds the table name of the city in the database.
 	Table = "city"
+	// ProvincesTable is the table that holds the provinces relation/edge.
+	ProvincesTable = "city"
+	// ProvincesInverseTable is the table name for the Province entity.
+	// It exists in this package in order to avoid circular dependency with the "province" package.
+	ProvincesInverseTable = "province"
+	// ProvincesColumn is the table column denoting the provinces relation/edge.
+	ProvincesColumn = "pid"
+	// CountiesTable is the table that holds the counties relation/edge.
+	CountiesTable = "county"
+	// CountiesInverseTable is the table name for the County entity.
+	// It exists in this package in order to avoid circular dependency with the "county" package.
+	CountiesInverseTable = "county"
+	// CountiesColumn is the table column denoting the counties relation/edge.
+	CountiesColumn = "pid"
 )
 
 // Columns holds all SQL columns for city fields.
@@ -67,4 +86,39 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 // ByPid orders the results by the pid field.
 func ByPid(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPid, opts...).ToFunc()
+}
+
+// ByProvincesField orders the results by provinces field.
+func ByProvincesField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newProvincesStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByCountiesCount orders the results by counties count.
+func ByCountiesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCountiesStep(), opts...)
+	}
+}
+
+// ByCounties orders the results by counties terms.
+func ByCounties(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCountiesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newProvincesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ProvincesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ProvincesTable, ProvincesColumn),
+	)
+}
+func newCountiesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CountiesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CountiesTable, CountiesColumn),
+	)
 }

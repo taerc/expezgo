@@ -19,8 +19,29 @@ type Province struct {
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Type holds the value of the "type" field.
-	Type         uint32 `json:"type,omitempty"`
+	Type uint32 `json:"type,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the ProvinceQuery when eager-loading is set.
+	Edges        ProvinceEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// ProvinceEdges holds the relations/edges for other nodes in the graph.
+type ProvinceEdges struct {
+	// Cities holds the value of the cities edge.
+	Cities []*City `json:"cities,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CitiesOrErr returns the Cities value or an error if the edge
+// was not loaded in eager-loading.
+func (e ProvinceEdges) CitiesOrErr() ([]*City, error) {
+	if e.loadedTypes[0] {
+		return e.Cities, nil
+	}
+	return nil, &NotLoadedError{edge: "cities"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -76,6 +97,11 @@ func (pr *Province) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (pr *Province) Value(name string) (ent.Value, error) {
 	return pr.selectValues.Get(name)
+}
+
+// QueryCities queries the "cities" edge of the Province entity.
+func (pr *Province) QueryCities() *CityQuery {
+	return NewProvinceClient(pr.config).QueryCities(pr)
 }
 
 // Update returns a builder for updating this Province.

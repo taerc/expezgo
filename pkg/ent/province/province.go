@@ -4,6 +4,7 @@ package province
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -15,8 +16,17 @@ const (
 	FieldName = "name"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
+	// EdgeCities holds the string denoting the cities edge name in mutations.
+	EdgeCities = "cities"
 	// Table holds the table name of the province in the database.
 	Table = "province"
+	// CitiesTable is the table that holds the cities relation/edge.
+	CitiesTable = "city"
+	// CitiesInverseTable is the table name for the City entity.
+	// It exists in this package in order to avoid circular dependency with the "city" package.
+	CitiesInverseTable = "city"
+	// CitiesColumn is the table column denoting the cities relation/edge.
+	CitiesColumn = "pid"
 )
 
 // Columns holds all SQL columns for province fields.
@@ -59,4 +69,25 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByType orders the results by the type field.
 func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
+// ByCitiesCount orders the results by cities count.
+func ByCitiesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCitiesStep(), opts...)
+	}
+}
+
+// ByCities orders the results by cities terms.
+func ByCities(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCitiesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newCitiesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CitiesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CitiesTable, CitiesColumn),
+	)
 }
