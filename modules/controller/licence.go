@@ -17,7 +17,7 @@ type LicenceSN struct {
 }
 
 func queryLicence() []LicenceSN {
-	db := ezgo.DB()
+	db,_ := ezgo.DB()
 
 	lic := make([]LicenceSN, 0)
 	db.Table("lic_sn").Where("id > 0").Scan(&lic)

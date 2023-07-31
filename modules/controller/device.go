@@ -30,10 +30,10 @@ func init() {
 func WithModuleDevice() func(wg *sync.WaitGroup) {
 
 	return func(wg *sync.WaitGroup) {
-		wg.Done()
 		route := ezgo.Group("/maicro/device")
 		ezgo.ProcPOST(route, "query", &QueryDevice{})
 		ezgo.Info(nil, M, "Load finished!")
+		wg.Done()
 	}
 
 }
