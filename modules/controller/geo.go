@@ -50,7 +50,7 @@ func queryGEO() {
 
 func (geo *QueryGEO) Proc(ctx *gin.Context) {
 	//queryGEO()
-	db := ezgo.DB()
+	db, _ := ezgo.DB()
 	pros := make([]Province, 0)
 	//db.Find(&pros)
 	//db.Preload("Cities").Find(&pros)

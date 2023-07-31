@@ -1,3 +1,4 @@
 *
 !schema/
 !.gitignore
+!db.go
