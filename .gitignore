@@ -9,4 +9,5 @@ docs/swagger.json
 docs/swagger.yaml
 resource/
 research/context
+modules/ent/.DS_Store
 

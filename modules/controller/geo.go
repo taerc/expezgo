@@ -61,9 +61,9 @@ func (geo *QueryGEO) Proc(ctx *gin.Context) {
 
 func WithModuleGEO() func(wg *sync.WaitGroup) {
 	return func(wg *sync.WaitGroup) {
-		wg.Done()
 		route := ezgo.Group("/maicro/geo")
 		ezgo.ProcGET(route, "query", &QueryGEO{})
 		ezgo.Info(nil, M, "Load finished!")
+		wg.Done()
 	}
 }

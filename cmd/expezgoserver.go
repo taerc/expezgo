@@ -1,7 +1,7 @@
 package main
 
 import (
-	"expezgo/pkg/controller"
+	controller2 "expezgo/modules/controller"
 	"flag"
 	"fmt"
 	"github.com/taerc/ezgo"
@@ -31,11 +31,11 @@ func Init(data interface{}) int {
 
 	ezgo.LoadModule(
 		ezgo.WithModuleGitLab(),
-		controller.WithModuleDevice(),
-		controller.WithModuleLicence(),
-		controller.WithModuleUser(),
-		controller.WithModuleGEO(),
-		controller.WithModuleSwagger(),
+		controller2.WithModuleDevice(),
+		controller2.WithModuleLicence(),
+		controller2.WithModuleUser(),
+		controller2.WithModuleGEO(),
+		controller2.WithModuleSwagger(),
 	)
 	return ezgo.Success
 }

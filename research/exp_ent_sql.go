@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"expezgo/pkg/ent"
 	"expezgo/pkg/ent/city"
@@ -11,7 +12,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/taerc/ezgo"
-	"log"
+	"github.com/taerc/ezgo/conf"
 )
 
 func QueryLicence(ctx context.Context, client *ent.Client) (*ent.Licence, error) {
@@ -97,17 +98,84 @@ func Query3TbLeftJoin(ctx context.Context, client *ent.Client) {
 
 }
 
+func RawSqlExample(ctx context.Context, client *ent.Client) {
+
+	rows, e := client.QueryContext(ctx, "select `id`, `name`, `type` from `province`")
+
+	if e != nil {
+		fmt.Println(e.Error())
+		return
+	}
+	defer rows.Close()
+
+	type Pros struct {
+		ID   uint32 `sql:"id"`
+		Name string `sql:"name"`
+		Type uint32 `sql:"type"`
+	}
+
+	provinces := make([]Pros, 0)
+
+	for rows.Next() {
+
+		var p Pros
+		if se := rows.Scan(&p.ID, &p.Name, &p.Type); se == nil {
+			provinces = append(provinces, p)
+		} else {
+			fmt.Println(se.Error())
+			continue
+		}
+	}
+
+	fmt.Println("Result:")
+	fmt.Println(fmt.Sprintf("Len [%d]", len(provinces)))
+
+	for _, p := range provinces {
+		fmt.Println(p.ID, p.Name)
+	}
+
+}
+
 func entLog(ctx context.Context, args ...any) {
 	ezgo.Info(nil, "ENT", args[0].(string))
 }
 
+func DBD() *ent.Client {
+
+	drv, e := ezgo.EntDBDriver("mysql")
+
+	if e != nil {
+		fmt.Println(e)
+		return nil
+	}
+
+	c := ent.NewClient(ent.Driver(dialect.DebugWithContext(drv, func(ctx context.Context, a ...any) {
+	})))
+
+	return c
+}
 func main() {
 
-	client, err := ent.Open("mysql", "wp:wORd@2314@tcp(127.0.0.1:3306)/buckets?parseTime=True")
-	if err != nil {
-		log.Fatalf("failed opening connection to mysql: %v", err)
+	c := conf.MySQLConf{
+		MySQLHostname: "127.0.0.1",
+		MySQLPort:     "3306",
+		MySQLUserName: "wp",
+		MySQLPass:     "wORd@2314",
+		MySQLDBName:   "buckets",
+		Charset:       "utf8mb4",
+		ParseTime:     "true",
+		Loc:           "Local",
 	}
-	defer client.Close()
+
+	//ezgo.WithComponentMySQL("mysql", &c)
+
+	ezgo.LoadComponent(ezgo.WithComponentMySQL("mysql", &c))
+
+	//client, err := ent.Open("mysql", "wp:wORd@2314@tcp(127.0.0.1:3306)/buckets?parseTime=True")
+	//if err != nil {
+	//	log.Fatalf("failed opening connection to mysql: %v", err)
+	//}
+	//defer client.Close()
 	//client.Debug()
 	ctx := context.Background()
 
@@ -127,5 +195,8 @@ func main() {
 
 	//QueryCityLeftJoin(ctx, client)
 
-	Query3TbLeftJoin(ctx, client)
+	//Query3TbLeftJoin(ctx, client)
+	//time.Sleep(3 * time.Second)
+
+	RawSqlExample(ctx, DBD())
 }
