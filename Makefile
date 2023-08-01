@@ -10,6 +10,7 @@ TYPE_VERSION?="15"
 DATETIME=`date +%Y%m%d%H%M`
 GIT_TAG=v$(MAJOR).$(MINOR).$(PATCH)-$(TAG_TYPE).$(TYPE_VERSION)
 MESSAGE?="gorm Preload 测试"
+BUILD?=build
 
 
 version:Makefile
@@ -42,3 +43,7 @@ geo:research/exp_ent_geo_data.go
 
 context:research/exp_14_context.go
 	go build -o build/context research/exp_14_context.go
+
+validate:research/exp_validate.go
+	go build -o $(BUILD)/validate research/exp_validate.go
+

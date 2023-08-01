@@ -20,7 +20,7 @@ func init() {
 	flag.Parse()
 }
 
-func Init(data interface{}) int {
+func Init(data interface{}) error {
 
 	conf.LoadConfigure(ConfigPath)
 	ezgo.LoadComponent(
@@ -38,23 +38,23 @@ func Init(data interface{}) int {
 		controller.WithModuleLPR(),
 		controller.WithModuleSwagger(),
 	)
-	return ezgo.Success
+	return nil
 }
 
-func Exec(data interface{}) int {
+func Exec(data interface{}) error {
 
 	ezgo.Run(fmt.Sprintf("%s:%s", conf.Config.Host, conf.Config.Port))
-	return ezgo.Success
+	return nil
 
 }
 
-func Done(data interface{}) int {
+func Done(data interface{}) error {
 
-	return ezgo.Success
+	return nil
 }
 
 func init() {
-	ezgo.InitAppFlow(Init, Exec, Done)
+	ezgo.InitApplication(Init, Exec, Done)
 }
 
 //go:generate swag init
