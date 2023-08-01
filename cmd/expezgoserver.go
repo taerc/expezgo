@@ -31,10 +31,6 @@ func Init(data interface{}) error {
 
 	ezgo.LoadModule(
 		ezgo.WithModuleGitLab(),
-		controller.WithModuleDevice(),
-		controller.WithModuleLicence(),
-		controller.WithModuleUser(),
-		controller.WithModuleGEO(),
 		controller.WithModuleLPR(),
 		controller.WithModuleSwagger(),
 	)

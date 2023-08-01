@@ -16,7 +16,7 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.5.0
 	github.com/swaggo/swag v1.16.1
-	github.com/taerc/ezgo v0.0.4-alpha.19
+	github.com/taerc/ezgo v0.0.4-alpha.22
 	github.com/urfave/cli v1.22.14
 	gorm.io/driver/mysql v1.5.1
 )

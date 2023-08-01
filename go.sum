@@ -229,6 +229,12 @@ github.com/taerc/ezgo v0.0.4-alpha.18 h1:4IVG/B+W0/crk1FTQ0dbBHz8Nm8pHmbEh/Q0vGJ
 github.com/taerc/ezgo v0.0.4-alpha.18/go.mod h1:7WZgTZykz7waf5LSNq5TpThK+IZlMxROATsCvD3Hh3w=
 github.com/taerc/ezgo v0.0.4-alpha.19 h1:EZc75aZg5s4eH+vYCdz5aQ/0hxW6hoPJaiH1kNAvWmI=
 github.com/taerc/ezgo v0.0.4-alpha.19/go.mod h1:7WZgTZykz7waf5LSNq5TpThK+IZlMxROATsCvD3Hh3w=
+github.com/taerc/ezgo v0.0.4-alpha.20 h1:B9Ljid2pCas5ierlhsbBPzSzN0PYR2T2w+l0x+irl2Q=
+github.com/taerc/ezgo v0.0.4-alpha.20/go.mod h1:7WZgTZykz7waf5LSNq5TpThK+IZlMxROATsCvD3Hh3w=
+github.com/taerc/ezgo v0.0.4-alpha.21 h1:EFSiJk60br7lxbqelVHgpieiYPt5kuzh/KHO1d7j4LI=
+github.com/taerc/ezgo v0.0.4-alpha.21/go.mod h1:7WZgTZykz7waf5LSNq5TpThK+IZlMxROATsCvD3Hh3w=
+github.com/taerc/ezgo v0.0.4-alpha.22 h1:0K/IO5lvLlINvrXo9DZFAP8LaThUfZ01gB0Py0AvcXE=
+github.com/taerc/ezgo v0.0.4-alpha.22/go.mod h1:7WZgTZykz7waf5LSNq5TpThK+IZlMxROATsCvD3Hh3w=
 github.com/tklauser/go-sysconf v0.3.11 h1:89WgdJhk5SNwJfu+GKyYveZ4IaJ7xAkecBo+KdJV0CM=
 github.com/tklauser/go-sysconf v0.3.11/go.mod h1:GqXfhXY3kiPa0nAXPDIQIWzJbMCB7AmcWpGR8lSZfqI=
 github.com/tklauser/numcpus v0.6.0 h1:kebhY2Qt+3U6RNK7UqpYNA+tJ23IBEGKkB7JQBfDYms=
