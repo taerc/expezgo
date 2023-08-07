@@ -50,4 +50,8 @@ validate:research/exp_validate.go
 kafka:research/exp_15_kafka.go
 	go build -o $(BUILD)/kafka research/exp_15_kafka.go
 
+cli-kafka:research/exp_16_cli_kafka.go
+	go build -o $(BUILD)/cli-kafka research/exp_16_cli_kafka.go
+
+
 
