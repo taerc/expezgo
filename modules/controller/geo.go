@@ -40,30 +40,26 @@ func (c County) TableName() string {
 	return "county"
 }
 
-type QueryGEO struct {
-	*ezgo.GinFlow
+type GEO struct {
 }
 
-func queryGEO() {
-
-}
-
-func (geo *QueryGEO) Proc(ctx *gin.Context) {
-	//queryGEO()
+func (g *GEO) List(ctx *gin.Context) {
 	db, _ := ezgo.DB()
 	pros := make([]Province, 0)
 	//db.Find(&pros)
 	//db.Preload("Cities").Find(&pros)
 	db.Preload("Cities").Preload("Cities.Counties").Find(&pros)
 	//db.Preload("Cities", "id & 1").Preload("Cities.Counties", "id &1 ").Find(&pros)
-	geo.ResponseIndJson(ctx, ezgo.Success, pros)
+	ezgo.OKResponse(ctx, pros)
+
 }
 
 func WithModuleGEO() func(wg *sync.WaitGroup) {
 	return func(wg *sync.WaitGroup) {
+		defer wg.Done()
+		s := new(GEO)
 		route := ezgo.Group("/maicro/geo")
-		ezgo.ProcGET(route, "query", &QueryGEO{})
-		ezgo.Info(nil, M, "Load finished!")
-		wg.Done()
+		ezgo.GET(route, "query", s.List)
+		ezgo.Info(nil, "GEO", "Load finished!")
 	}
 }

@@ -16,7 +16,7 @@ func WithModuleSwagger() func(wg *sync.WaitGroup) {
 
 	return func(wg *sync.WaitGroup) {
 		wg.Done()
-		r := ezgo.DefaultApp().Group("/docs")
+		r := ezgo.Group("/docs")
 		ezgo.GET(r, "/swagger/*any", func(ctx *gin.Context) {
 			docs.SwaggerInfo.Host = ctx.Request.Host
 			docs.SwaggerInfo.Title = "EasyGo"
