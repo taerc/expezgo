@@ -47,3 +47,7 @@ context:research/exp_14_context.go
 validate:research/exp_validate.go
 	go build -o $(BUILD)/validate research/exp_validate.go
 
+kafka:research/exp_15_kafka.go
+	go build -o $(BUILD)/kafka research/exp_15_kafka.go
+
+
