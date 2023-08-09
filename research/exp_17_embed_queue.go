@@ -46,7 +46,6 @@ func enqueue() {
 		i++
 		time.Sleep(1 * time.Second)
 	}
-
 }
 
 func dequeue() {
@@ -73,24 +72,20 @@ func chanDequeue() {
 		if e != nil && errors.Is(e, goque.ErrEmpty) {
 			fmt.Println("queue is empty")
 			time.Sleep(3 * time.Second)
-			return
+			continue
 		}
 
 		if e != nil {
 			panic(e)
 		}
-
 		chanProcess <- s.ToString()
-		// fmt.Println(s.ToString())
-		time.Sleep(1 * time.Second)
-
 	}
 }
 
 func cons() {
 
 	for s := range chanProcess {
-		processs(s)
+		go processs(s)
 	}
 }
 
