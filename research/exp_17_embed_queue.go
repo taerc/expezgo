@@ -27,6 +27,7 @@ func main() {
 
 	go enqueue()
 	go chanDequeue()
+	go cons()
 
 	for {
 		time.Sleep(5 * time.Second)
@@ -39,8 +40,9 @@ func enqueue() {
 	s := "this is a suffix"
 
 	for {
-		queue.EnqueueString(fmt.Sprintf("%s %d", s, i))
-		fmt.Println("inqueue ")
+		si := fmt.Sprintf("%s %d", s, i)
+		queue.EnqueueString(si)
+		fmt.Println(fmt.Sprintf("IN %s", si))
 		i++
 		time.Sleep(1 * time.Second)
 	}
@@ -79,12 +81,22 @@ func chanDequeue() {
 		}
 
 		chanProcess <- s.ToString()
-		go cons(chanProcess)
+		// fmt.Println(s.ToString())
+		time.Sleep(1 * time.Second)
 
 	}
 }
 
-func cons(ta chan string) {
-	fmt.Println(<-ta)
-	time.Sleep(5 * time.Second)
+func cons() {
+
+	for s := range chanProcess {
+		processs(s)
+	}
+}
+
+func processs(s string) {
+
+	fmt.Println(fmt.Sprintf("OUT %s", s))
+	time.Sleep(1 * time.Second)
+
 }
