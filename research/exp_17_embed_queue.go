@@ -52,7 +52,6 @@ func dequeue() {
 
 	// dequeue a string
 	s, e := queue.Dequeue()
-	fmt.Println(e.Error())
 	if e != nil && errors.Is(e, goque.ErrEmpty) {
 		fmt.Println("queue is empty")
 		return
