@@ -10,4 +10,4 @@ docs/swagger.yaml
 resource/
 research/context
 modules/ent/.DS_Store
-
+data_dir/
