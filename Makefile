@@ -54,6 +54,8 @@ cli-kafka:research/exp_16_cli_kafka.go
 	go build -o $(BUILD)/cli-kafka research/exp_16_cli_kafka.go
 embed-queue:research/exp_17_embed_queue.go
 	go build -o $(BUILD)/embed-queue research/exp_17_embed_queue.go
+conv-pinyin:research/exp_18_conv_pinyin.go
+	go build -o $(BUILD)/conv-pinyin research/exp_18_conv_pinyin.go
 
 
 
