@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -12,6 +13,7 @@ import (
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
+var clientID = flag.String("id", "client-0x00", "client")
 
 func main() {
 	flag.Parse()
@@ -51,7 +53,7 @@ func main() {
 		case <-done:
 			return
 		case t := <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(t.String()))
+			err := c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%s:%s", *clientID, t.String())))
 			if err != nil {
 				log.Println("write:", err)
 				return
