@@ -56,6 +56,10 @@ embed-queue:research/exp_17_embed_queue.go
 	go build -o $(BUILD)/embed-queue research/exp_17_embed_queue.go
 conv-pinyin:research/exp_18_conv_pinyin.go
 	go build -o $(BUILD)/conv-pinyin research/exp_18_conv_pinyin.go
+server-ws:research/exp_07_server_ws.go
+	go build -o $(BUILD)/server-ws research/exp_07_server_ws.go
+client-ws:research/exp_07_client_ws.go
+	go build -o $(BUILD)/client-ws research/exp_07_client_ws.go
 
 
 
