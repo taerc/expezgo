@@ -33,9 +33,10 @@ publish:version
 	git tag -a $(GIT_TAG) -m $(MESSAGE)
 	git push origin --tags
 
+ent:
+	@go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/execquery,sql/upsert,sql/modifier ./modules/ent/schema
 
 expent:research/exp_ent_sql.go
-	@go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/execquery,sql/upsert,sql/modifier ./modules/ent/schema
 	@go build -o build/expent -gcflags="all=-N -l" research/exp_ent_sql.go
 
 geo:research/exp_ent_geo_data.go
@@ -60,6 +61,9 @@ server-ws:research/exp_07_server_ws.go
 	go build -o $(BUILD)/server-ws research/exp_07_server_ws.go
 client-ws:research/exp_07_client_ws.go
 	go build -o $(BUILD)/client-ws research/exp_07_client_ws.go
+
+ent-hook:research/exp_19_ent_hook.go
+	go build -o $(BUILD)/ent-hook research/exp_19_ent_hook.go
 
 
 
