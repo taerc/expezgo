@@ -51,6 +51,9 @@ validate:research/exp_validate.go
 kafka:research/exp_15_kafka.go
 	go build -o $(BUILD)/kafka research/exp_15_kafka.go
 
+go-consts:research/exp_04_consts.go
+	go build -o $(BUILD)/go-consts research/exp_04_consts.go
+
 cli-kafka:research/exp_16_cli_kafka.go
 	go build -o $(BUILD)/cli-kafka research/exp_16_cli_kafka.go
 embed-queue:research/exp_17_embed_queue.go

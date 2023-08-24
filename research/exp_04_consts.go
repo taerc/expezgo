@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/skip2/go-qrcode"
+	// "github.com/skip2/go-qrcode"
 	"io/ioutil"
 )
 
@@ -52,9 +52,14 @@ func main() {
 
 	data := loadFileAsString(txt_csv)
 	fmt.Println(data)
-	data = "https://www.baidu.com?" + data
-	fmt.Println(len(data))
-	err := qrcode.WriteFile(data, qrcode.Medium, 1080, "qr.png")
-	fmt.Println(err)
+	// data = "https://www.baidu.com?" + data
+	// fmt.Println(len(data))
+	// err := qrcode.WriteFile(data, qrcode.Medium, 1080, "qr.png")
+	// fmt.Println(err)
+
+	fmt.Println(dataModeNone)
+	fmt.Println(dataModeNumeric)
+	fmt.Println(dataModeAlphanumeric)
+	fmt.Println(dataModeByte)
 
 }
