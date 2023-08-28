@@ -68,5 +68,7 @@ client-ws:research/exp_07_client_ws.go
 ent-hook:research/exp_19_ent_hook.go
 	go build -o $(BUILD)/ent-hook research/exp_19_ent_hook.go
 
+xls:research/exp_20_xls.go
+	go build -o $(BUILD)/xls research/exp_20_xls.go
 
 
