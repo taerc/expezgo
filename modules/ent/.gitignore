@@ -2,3 +2,5 @@
 !schema/
 !.gitignore
 !db.go
+!schema/*.go
+!generate.go
