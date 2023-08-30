@@ -71,4 +71,8 @@ ent-hook:research/exp_19_ent_hook.go
 xls:research/exp_20_xls.go
 	go build -o $(BUILD)/xls research/exp_20_xls.go
 
+graph:
+	@entviz ./modules/drone
+	@mv schema-viz.html docs
+
 

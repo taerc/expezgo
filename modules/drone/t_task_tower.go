@@ -13,7 +13,12 @@ type TTaskTower struct {
 }
 
 func (TTaskTower) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("taskId").Comment("任务ID"), field.Int("towerId").Comment("杆塔ID"), field.Int8("status").Comment("0-未巡检，1-已完成"), field.Time("createTime"), field.Time("overTime")}
+	return []ent.Field{field.Int("id"), 
+	field.Int("taskId").Comment("任务ID"),
+	 field.Int("towerId").Comment("杆塔ID"), 
+	 field.Int8("status").Comment("0-未巡检，1-已完成"), 
+	 field.Time("createTime"), 
+	 field.Time("overTime")}
 }
 func (TTaskTower) Edges() []ent.Edge {
 	return nil

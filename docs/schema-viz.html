@@ -1,0 +1,148 @@
+<html lang="en">
+
+<head>
+  <title>ent schema network</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/tonsky/FiraCode@5.2/distr/fira_code.css">
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.6.1/randomColor.min.js" integrity="sha512-vPeZ7JCboHcfpqSx5ZD+/jpEhS4JpXxfz9orSvAPPj0EKUVShU2tgy7XkU+oujBJKnWmu4hU7r9MMQNWPfXsYw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style type="text/css">
+    html * {
+      font-family: 'Fira Code', monospace !important;
+      font-size: 14px;
+    }
+
+    #schema {
+      width: 100%;
+      height: 100%;
+      border: 1px solid lightgray;
+    }
+
+    .var-type {
+      color: #4EC9B0;
+    }
+
+    table {
+      padding: 2px 3px;
+    }
+
+    .vis-tooltip,
+    .table-container {
+      background-color: #1e1e1e !important;
+      color: white;
+    }
+
+    tr {
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="schema"></div>
+  <br />
+  <script type="text/javascript">
+    
+    const fieldsToTable = fields => {
+      const container = document.createElement("div");
+      container.setAttribute("class", "table-container")
+      if (!fields) {
+        container.innerText = "no fields";
+        return container;
+      }
+      const tbl = document.createElement("table");
+      const tblBody = document.createElement("tbody");
+      for (const field of fields) {
+        const row = document.createElement("tr");
+        for (const key of ["name", "type"]) {
+          const cell = document.createElement("td");
+          const cellText = document.createTextNode(field[key]);
+          if (key === "type") {
+            cell.setAttribute("class", "var-type")
+          }
+          cell.appendChild(cellText);
+          row.appendChild(cell);
+        }
+        tblBody.appendChild(row);
+      }
+      tbl.appendChild(tblBody);
+      container.appendChild(tbl);
+      return container;
+    }
+
+    
+    const entGraph = JSON.parse("{\"nodes\":[{\"id\":\"TAppAccount\",\"fields\":[{\"name\":\"orgId\",\"type\":\"int\"},{\"name\":\"orgName\",\"type\":\"string\"},{\"name\":\"account\",\"type\":\"string\"},{\"name\":\"passwd\",\"type\":\"string\"},{\"name\":\"userName\",\"type\":\"string\"},{\"name\":\"salt\",\"type\":\"string\"},{\"name\":\"token\",\"type\":\"string\"},{\"name\":\"loginModel\",\"type\":\"string\"},{\"name\":\"loginDevice\",\"type\":\"string\"},{\"name\":\"loginScene\",\"type\":\"bool\"},{\"name\":\"loginTime\",\"type\":\"time.Time\"},{\"name\":\"loginLon\",\"type\":\"float64\"},{\"name\":\"loginLat\",\"type\":\"float64\"},{\"name\":\"deadLineTime\",\"type\":\"time.Time\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TArchiveTask\",\"fields\":[{\"name\":\"archiveId\",\"type\":\"string\"},{\"name\":\"taskId\",\"type\":\"string\"}]},{\"id\":\"TDefectCode\",\"fields\":[{\"name\":\"code\",\"type\":\"string\"},{\"name\":\"defectName\",\"type\":\"string\"},{\"name\":\"category\",\"type\":\"string\"},{\"name\":\"level\",\"type\":\"string\"},{\"name\":\"acceptScore\",\"type\":\"float32\"},{\"name\":\"status\",\"type\":\"int8\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TDefectInfo\",\"fields\":[{\"name\":\"imgId\",\"type\":\"int\"},{\"name\":\"defectName\",\"type\":\"string\"},{\"name\":\"category\",\"type\":\"string\"},{\"name\":\"level\",\"type\":\"string\"},{\"name\":\"code\",\"type\":\"string\"},{\"name\":\"xmin\",\"type\":\"string\"},{\"name\":\"ymin\",\"type\":\"string\"},{\"name\":\"xmax\",\"type\":\"string\"},{\"name\":\"ymax\",\"type\":\"string\"},{\"name\":\"status\",\"type\":\"bool\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TDrone\",\"fields\":[{\"name\":\"orgId\",\"type\":\"int\"},{\"name\":\"orgName\",\"type\":\"string\"},{\"name\":\"model\",\"type\":\"string\"},{\"name\":\"devSn\",\"type\":\"string\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TDroneStatu\",\"fields\":[{\"name\":\"devSN\",\"type\":\"string\"},{\"name\":\"model\",\"type\":\"string\"},{\"name\":\"heartTime\",\"type\":\"time.Time\"},{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"workerId\",\"type\":\"int\"},{\"name\":\"taskNo\",\"type\":\"string\"},{\"name\":\"towerId\",\"type\":\"int\"},{\"name\":\"longtitude\",\"type\":\"float64\"},{\"name\":\"latitude\",\"type\":\"float64\"},{\"name\":\"altitude\",\"type\":\"float64\"},{\"name\":\"speed\",\"type\":\"float64\"},{\"name\":\"aircraftHead\",\"type\":\"int32\"},{\"name\":\"aircraftPitch\",\"type\":\"int32\"},{\"name\":\"aircraftRolll\",\"type\":\"int32\"},{\"name\":\"aircraftBattery\",\"type\":\"int32\"},{\"name\":\"gimbalPitch\",\"type\":\"int32\"},{\"name\":\"imgSign\",\"type\":\"string\"},{\"name\":\"channelInterference\",\"type\":\"string\"},{\"name\":\"compass\",\"type\":\"string\"},{\"name\":\"flightMode\",\"type\":\"string\"},{\"name\":\"rtkStatus\",\"type\":\"string\"},{\"name\":\"rtkNum\",\"type\":\"int32\"},{\"name\":\"satelliteNum\",\"type\":\"int32\"},{\"name\":\"download\",\"type\":\"string\"},{\"name\":\"upload\",\"type\":\"string\"},{\"name\":\"distance\",\"type\":\"float64\"},{\"name\":\"verticalSpeed\",\"type\":\"float64\"},{\"name\":\"horizontalSpeed\",\"type\":\"float64\"},{\"name\":\"createTime\",\"type\":\"time.Time\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"signal\",\"type\":\"int32\"},{\"name\":\"rtk\",\"type\":\"int32\"},{\"name\":\"windSpeed\",\"type\":\"float64\"},{\"name\":\"storageLeftCapacity\",\"type\":\"int32\"},{\"name\":\"homeDistance\",\"type\":\"int32\"}]},{\"id\":\"TImage\",\"fields\":[{\"name\":\"imgName\",\"type\":\"string\"},{\"name\":\"imgWidth\",\"type\":\"int32\"},{\"name\":\"imgHeight\",\"type\":\"int32\"},{\"name\":\"longtitude\",\"type\":\"float64\"},{\"name\":\"latitude\",\"type\":\"float64\"},{\"name\":\"altitude\",\"type\":\"float32\"},{\"name\":\"photoTime\",\"type\":\"time.Time\"},{\"name\":\"imgType\",\"type\":\"int8\"},{\"name\":\"thumbnailId\",\"type\":\"string\"},{\"name\":\"mediaId\",\"type\":\"string\"},{\"name\":\"comprId\",\"type\":\"string\"},{\"name\":\"is_ai_check\",\"type\":\"int8\"},{\"name\":\"is_ok\",\"type\":\"int8\"},{\"name\":\"is_check\",\"type\":\"int8\"},{\"name\":\"checkTime\",\"type\":\"time.Time\"},{\"name\":\"xmlPath\",\"type\":\"string\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TInspectArchive\",\"fields\":[{\"name\":\"archiveId\",\"type\":\"string\"},{\"name\":\"archiveName\",\"type\":\"string\"},{\"name\":\"archiveDate\",\"type\":\"time.Time\"},{\"name\":\"archiveLineAstId\",\"type\":\"[]byte\"},{\"name\":\"archiveRule\",\"type\":\"int8\"},{\"name\":\"operator\",\"type\":\"string\"},{\"name\":\"archiveExport\",\"type\":\"string\"}]},{\"id\":\"TLineImage\",\"fields\":[{\"name\":\"lineId\",\"type\":\"int\"},{\"name\":\"towerId\",\"type\":\"int\"},{\"name\":\"taskId\",\"type\":\"int\"},{\"name\":\"imgId\",\"type\":\"int\"}]},{\"id\":\"TLineInfo\",\"fields\":[{\"name\":\"preId\",\"type\":\"int\"},{\"name\":\"lineAstId\",\"type\":\"string\"},{\"name\":\"lineName\",\"type\":\"string\"},{\"name\":\"sceneId\",\"type\":\"int8\"},{\"name\":\"orgId\",\"type\":\"int\"},{\"name\":\"mediaBucket\",\"type\":\"string\"},{\"name\":\"voltageLevel\",\"type\":\"int32\"},{\"name\":\"protected\",\"type\":\"int8\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TLineTowerInfo\",\"fields\":[{\"name\":\"lineId\",\"type\":\"int\"},{\"name\":\"towerId\",\"type\":\"int\"},{\"name\":\"towerNo\",\"type\":\"string\"},{\"name\":\"towerType\",\"type\":\"string\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"},{\"name\":\"sort\",\"type\":\"int32\"},{\"name\":\"span\",\"type\":\"float32\"}]},{\"id\":\"TMedium\",\"fields\":[{\"name\":\"bucket\",\"type\":\"string\"},{\"name\":\"mediaId\",\"type\":\"string\"},{\"name\":\"fileName\",\"type\":\"string\"},{\"name\":\"size\",\"type\":\"int\"},{\"name\":\"format\",\"type\":\"string\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TOperationInfo\",\"fields\":[{\"name\":\"name\",\"type\":\"string\"},{\"name\":\"createTime\",\"type\":\"time.Time\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"}]},{\"id\":\"TOrganizationInfo\",\"fields\":[{\"name\":\"orgAstId\",\"type\":\"string\"},{\"name\":\"preId\",\"type\":\"int\"},{\"name\":\"orgName\",\"type\":\"string\"},{\"name\":\"mediaBucket\",\"type\":\"string\"},{\"name\":\"createTime\",\"type\":\"time.Time\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"tagPath\",\"type\":\"string\"}]},{\"id\":\"TPlatformAccount\",\"fields\":[{\"name\":\"orgId\",\"type\":\"int\"},{\"name\":\"orgName\",\"type\":\"string\"},{\"name\":\"operaId\",\"type\":\"int\"},{\"name\":\"operaName\",\"type\":\"string\"},{\"name\":\"account\",\"type\":\"string\"},{\"name\":\"userName\",\"type\":\"string\"},{\"name\":\"passwd\",\"type\":\"string\"},{\"name\":\"salt\",\"type\":\"string\"},{\"name\":\"userRole\",\"type\":\"bool\"},{\"name\":\"token\",\"type\":\"string\"},{\"name\":\"loginTime\",\"type\":\"time.Time\"},{\"name\":\"deadLineTime\",\"type\":\"time.Time\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TTaskImage\",\"fields\":[{\"name\":\"taskId\",\"type\":\"int\"},{\"name\":\"towerId\",\"type\":\"int\"},{\"name\":\"imgId\",\"type\":\"int\"}]},{\"id\":\"TTaskInfo\",\"fields\":[{\"name\":\"taskAstId\",\"type\":\"string\"},{\"name\":\"taskName\",\"type\":\"string\"},{\"name\":\"taskNo\",\"type\":\"string\"},{\"name\":\"taskType\",\"type\":\"bool\"},{\"name\":\"orgId\",\"type\":\"int\"},{\"name\":\"taskDate\",\"type\":\"time.Time\"},{\"name\":\"creator\",\"type\":\"string\"},{\"name\":\"creatorID\",\"type\":\"int\"},{\"name\":\"worker\",\"type\":\"string\"},{\"name\":\"workerID\",\"type\":\"int\"},{\"name\":\"source\",\"type\":\"int8\"},{\"name\":\"devSn\",\"type\":\"string\"},{\"name\":\"taskMileage\",\"type\":\"float32\"},{\"name\":\"imgCount\",\"type\":\"int32\"},{\"name\":\"mode\",\"type\":\"int8\"},{\"name\":\"scene\",\"type\":\"int8\"},{\"name\":\"status\",\"type\":\"int8\"},{\"name\":\"taskExport\",\"type\":\"string\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TTaskTower\",\"fields\":[{\"name\":\"taskId\",\"type\":\"int\"},{\"name\":\"towerId\",\"type\":\"int\"},{\"name\":\"status\",\"type\":\"int8\"},{\"name\":\"createTime\",\"type\":\"time.Time\"},{\"name\":\"overTime\",\"type\":\"time.Time\"}]},{\"id\":\"TTowerAttibute\",\"fields\":[{\"name\":\"towerId\",\"type\":\"int\"},{\"name\":\"towerNo\",\"type\":\"string\"},{\"name\":\"lineId\",\"type\":\"int\"},{\"name\":\"attibuteValue\",\"type\":\"int8\"},{\"name\":\"attibuteName\",\"type\":\"string\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TTowerInfo\",\"fields\":[{\"name\":\"crossId\",\"type\":\"int\"},{\"name\":\"towerAstId\",\"type\":\"string\"},{\"name\":\"towerNo\",\"type\":\"string\"},{\"name\":\"towerType\",\"type\":\"int8\"},{\"name\":\"lineId\",\"type\":\"int\"},{\"name\":\"lineName\",\"type\":\"string\"},{\"name\":\"longitude\",\"type\":\"float64\"},{\"name\":\"latitude\",\"type\":\"float64\"},{\"name\":\"towerHeight\",\"type\":\"int32\"},{\"name\":\"towerAlt\",\"type\":\"int32\"},{\"name\":\"isFixed\",\"type\":\"int8\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TTowerRouteDoc\",\"fields\":[{\"name\":\"towerId\",\"type\":\"int\"},{\"name\":\"droneModel\",\"type\":\"string\"},{\"name\":\"fileName\",\"type\":\"string\"},{\"name\":\"mediaId\",\"type\":\"string\"},{\"name\":\"createId\",\"type\":\"int\"},{\"name\":\"createAccount\",\"type\":\"string\"},{\"name\":\"planMethod\",\"type\":\"int8\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]},{\"id\":\"TVideoStream\",\"fields\":[{\"name\":\"devSN\",\"type\":\"string\"},{\"name\":\"switch\",\"type\":\"int8\"},{\"name\":\"bitRate\",\"type\":\"int32\"},{\"name\":\"updateTime\",\"type\":\"time.Time\"},{\"name\":\"createTime\",\"type\":\"time.Time\"}]}],\"edges\":null}");
+    const nodes = new vis.DataSet((entGraph.nodes || []).map(n =>
+    ({
+      id: n.id,
+      label: n.id,
+      color: randomColor({
+        luminosity: 'light',
+        hue: 'random',
+      }),
+      title: fieldsToTable(n.fields),
+    })
+    ));
+    edgesCounter = {};
+    
+    
+    const edgeKey = e => `${e.to}::${e.from}`
+    const edges = new vis.DataSet((entGraph.edges || []).map(e => {
+      const counter = (edgesCounter[edgeKey(e)] || 0) + 1;
+      edgesCounter[edgeKey(e)] = counter;
+      if (e.from === e.to) {
+        return {
+          ...e,
+          physics: false,
+          arrows: "to",
+          type: 'curvedCW',
+          selfReference: {
+            size: (counter + 1) * 10,
+            angle: (counter * 0.8) * Math.PI / 4,
+            renderBehindTheNode: false
+          }
+        }
+      }
+      return { ...e, type: 'curvedCW', physics: false, arrows: "to", smooth: { type: 'curvedCW', roundness: Math.pow(-1, counter) * 0.2 * counter } }
+    }));
+    const options = {
+      manipulation: false,
+      edges: {
+        physics: false,
+        smooth: { type: 'curvedCW', roundness: 0.2 },
+        arrows: "to",
+      },
+      nodes: {
+        widthConstraint: 60,
+        heightConstraint: 60,
+        shape: "box",
+        font: { align: "center" },
+      },
+      layout: {
+        improvedLayout: true,
+        hierarchical: {
+          enabled: true,
+          levelSeparation: 250,
+        },
+      },
+      physics: {
+        enabled: true,
+        barnesHut: {
+          springConstant: 0,
+          avoidOverlap: 1,
+          springConstant: 0
+        },
+        solver: "barnesHut",
+        repulsion: {
+          nodeDistance: 150,
+          springConstant: 0,
+          damping: 0,
+          springLength: 0
+        }
+      }
+    };
+    const container = document.getElementById("schema");
+    const gph = new vis.Network(container, { nodes, edges }, options);
+  </script>
+</body>
+
+</html>
