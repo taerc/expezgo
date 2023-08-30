@@ -14,7 +14,17 @@ type TLineInfo struct {
 }
 
 func (TLineInfo) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("preId").Comment("父级线路资产Id"), field.String("lineAstId").Comment("线路资产ID"), field.String("lineName").Comment("线路名称"), field.Int8("sceneId").Comment("场景：1 - 输电；2 - 配电；3 - 基建"), field.Int("orgId").Comment("资产单位"), field.String("mediaBucket").Comment("文件Bucket"), field.Int32("voltageLevel").Comment("电压等级单位kV"), field.Int8("protected").Comment("受保护的：1 - 是；0 - 否"), field.Time("updateTime").Optional().Comment("更新时间"), field.Time("createTime").Optional().Comment("创建时间")}
+	return []ent.Field{field.Int("id"),
+ field.Int("preId").Comment("父级线路资产Id"),
+ field.String("lineAstId").Comment("线路资产ID"),
+ field.String("lineName").Comment("线路名称"),
+ field.Int8("sceneId").Comment("场景：1 - 输电；2 - 配电；3 - 基建"),
+ field.Int("orgId").Comment("资产单位"),
+ field.String("mediaBucket").Comment("文件Bucket"),
+ field.Int32("voltageLevel").Comment("电压等级单位kV"),
+ field.Int8("protected").Comment("受保护的：1 - 是；0 - 否"),
+ field.Time("updateTime").Optional().Comment("更新时间"),
+ field.Time("createTime").Optional().Comment("创建时间")}
 }
 func (TLineInfo) Edges() []ent.Edge {
 	return nil

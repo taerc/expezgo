@@ -14,7 +14,20 @@ type TTowerInfo struct {
 }
 
 func (TTowerInfo) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("crossId").Comment("支线ID"), field.String("towerAstId").Comment("杆塔资产编号"), field.String("towerNo").Comment("塔号"), field.Int8("towerType").Comment("杆塔类型 1：直线 2：耐张 3：转角"), field.Int("lineId").Comment("线路ID"), field.String("lineName").Comment("线路名称"), field.Float("longitude").Comment("经度"), field.Float("latitude").Comment("纬度"), field.Int32("towerHeight").Comment("塔高mm\n"), field.Int32("towerAlt").Comment("塔顶海拔，单位mm"), field.Int8("isFixed").Comment("是否校准：0 - 否；1 - 是"), field.Time("updateTime").Comment("更新时间"), field.Time("createTime").Comment("创建时间")}
+	return []ent.Field{field.Int("id"),
+ field.Int("crossId").Comment("支线ID"),
+ field.String("towerAstId").Comment("杆塔资产编号"),
+ field.String("towerNo").Comment("塔号"),
+ field.Int8("towerType").Comment("杆塔类型 1：直线 2：耐张 3：转角"),
+ field.Int("lineId").Comment("线路ID"),
+ field.String("lineName").Comment("线路名称"),
+ field.Float("longitude").Comment("经度"),
+ field.Float("latitude").Comment("纬度"),
+ field.Int32("towerHeight").Comment("塔高mm\n"),
+ field.Int32("towerAlt").Comment("塔顶海拔，单位mm"),
+ field.Int8("isFixed").Comment("是否校准：0 - 否；1 - 是"),
+ field.Time("updateTime").Comment("更新时间"),
+ field.Time("createTime").Comment("创建时间")}
 }
 func (TTowerInfo) Edges() []ent.Edge {
 	return nil

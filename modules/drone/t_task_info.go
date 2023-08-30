@@ -14,7 +14,27 @@ type TTaskInfo struct {
 }
 
 func (TTaskInfo) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.String("taskAstId").Comment("任务ID"), field.String("taskName").Comment("任务名称"), field.String("taskNo").Comment("任务编号"), field.Bool("taskType").Comment("任务类型0:在线创建任务，1：离线创建任务"), field.Int("orgId").Comment("组织单位ID"), field.Time("taskDate").Comment("任务日期"), field.String("creator").Comment("创建者"), field.Int("creatorID").Comment("创建者ID"), field.String("worker").Comment("执行者"), field.Int("workerID").Comment("执行者ID"), field.Int8("source").Comment("来源：1 - 平台；2 - APP"), field.String("devSn").Comment("设备SN（任务执行后填充）"), field.Float32("taskMileage").Comment("任务里程"), field.Int32("imgCount").Comment("图片数量，精细化巡检才有"), field.Int8("mode").Comment("任务模式：1 - 精细巡检；2 - 航线踩点；3 - AI自主巡检；4-通道巡检"), field.Int8("scene").Comment("1-输电，2-配电"), field.Int8("status").Comment("任务状态：0 - 待处理；1 - 作业中；2 - 已完成"), field.String("taskExport").Comment("任务报告"), field.Time("updateTime").Comment("更新时间"), field.Time("createTime").Comment("创建时间")}
+	return []ent.Field{field.Int("id"),
+ field.String("taskAstId").Comment("任务ID"),
+ field.String("taskName").Comment("任务名称"),
+ field.String("taskNo").Comment("任务编号"),
+ field.Bool("taskType").Comment("任务类型0:在线创建任务，1：离线创建任务"),
+ field.Int("orgId").Comment("组织单位ID"),
+ field.Time("taskDate").Comment("任务日期"),
+ field.String("creator").Comment("创建者"),
+ field.Int("creatorID").Comment("创建者ID"),
+ field.String("worker").Comment("执行者"),
+ field.Int("workerID").Comment("执行者ID"),
+ field.Int8("source").Comment("来源：1 - 平台；2 - APP"),
+ field.String("devSn").Comment("设备SN（任务执行后填充）"),
+ field.Float32("taskMileage").Comment("任务里程"),
+ field.Int32("imgCount").Comment("图片数量，精细化巡检才有"),
+ field.Int8("mode").Comment("任务模式：1 - 精细巡检；2 - 航线踩点；3 - AI自主巡检；4-通道巡检"),
+ field.Int8("scene").Comment("1-输电，2-配电"),
+ field.Int8("status").Comment("任务状态：0 - 待处理；1 - 作业中；2 - 已完成"),
+ field.String("taskExport").Comment("任务报告"),
+ field.Time("updateTime").Comment("更新时间"),
+ field.Time("createTime").Comment("创建时间")}
 }
 func (TTaskInfo) Edges() []ent.Edge {
 	return nil
