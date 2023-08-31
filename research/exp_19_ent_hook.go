@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"entgo.io/ent/dialect"
-	"github.com/shopspring/decimal"
 	"github.com/taerc/ezgo"
 	"github.com/taerc/ezgo/conf"
 )
@@ -35,7 +34,24 @@ func DBD() *ent.Client {
 	// 	})
 	// })
 
+	c.Intercept(ent.InterceptFunc(func(q ent.Querier) ent.Querier {
+		return ent.QuerierFunc(func(ctx context.Context, query ent.Query) (ent.Value, error) {
+			fmt.Println("query ..... ....")
+			return q.Query(ctx, query)
+		})
+	}))
 	c.Use(hook.On(updateTimestamp(), ent.OpUpdate|ent.OpUpdateOne))
+
+	// ent.InterceptFunc(func(next ent.Querier) ent.Querier {
+	// 	return ent.QuerierFunc(func(ctx context.Context, query ent.Query) (ent.Value, error) {
+	// 		// Do something before the query execution.
+	// 		fmt.Println("this is BEFER ..")
+	// 		value, err := next.Query(ctx, query)
+	// 		// Do something after the query execution.
+	// 		fmt.Println("this is END ...")
+	// 		return value, err
+	// 	})
+	// })
 	return c
 }
 
@@ -61,14 +77,9 @@ func updateTimestamp() func(next ent.Mutator) ent.Mutator {
 
 func AddUser(ctx context.Context, c *ent.Client) {
 
-	if v, err := decimal.NewFromString("101.111111"); err == nil {
-		_, e := c.Debug().User.Create().SetUsername("wangfangming").SetPassword("123456").
-			SetRealname("wfm").
-			SetLoginLng(v).
-			SetLoginLat(v).Save(ctx)
-		if e != nil {
-			fmt.Println(e.Error())
-		}
+	_, e := c.Debug().User.Query().All(ctx)
+	if e != nil {
+		fmt.Println(e.Error())
 	}
 }
 
@@ -106,6 +117,7 @@ func main() {
 	//}
 	//defer client.Close()
 	//client.Debug()
+
 	ctx := context.Background()
 
 	AddUser(ctx, DBD())

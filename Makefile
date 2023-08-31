@@ -34,7 +34,7 @@ publish:version
 	git push origin --tags
 
 ent:
-	@go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/execquery,sql/upsert,sql/modifier ./modules/ent/schema
+	@go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/execquery,sql/upsert,sql/modifier,intercept ./modules/ent/schema
 
 expent:research/exp_ent_sql.go
 	@go build -o build/expent -gcflags="all=-N -l" research/exp_ent_sql.go
