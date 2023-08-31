@@ -13,7 +13,9 @@ type TArchiveTask struct {
 }
 
 func (TArchiveTask) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.String("archiveId").Comment("归档ID"), field.String("taskId").Comment("任务ID")}
+	return []ent.Field{field.Int("id"),
+ field.String("archiveId").Comment("归档ID"),
+ field.String("taskId").Comment("任务ID")}
 }
 func (TArchiveTask) Edges() []ent.Edge {
 	return nil

@@ -14,7 +14,14 @@ type TInspectArchive struct {
 }
 
 func (TInspectArchive) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.String("archiveId").Comment("归档任务Id"), field.String("archiveName").Comment("归档任务名称"), field.Time("archiveDate").Comment("归档日期"), field.Bytes("archiveLineAstId").Comment("归档线路ID"), field.Int8("archiveRule").Comment("归档规则"), field.String("operator").Comment("归档人员"), field.String("archiveExport").Comment("归档任务的报告")}
+	return []ent.Field{field.Int("id"),
+ field.String("archiveId").Comment("归档任务Id"),
+ field.String("archiveName").Comment("归档任务名称"),
+ field.Time("archiveDate").Comment("归档日期"),
+ field.Bytes("archiveLineAstId").Comment("归档线路ID"),
+ field.Int8("archiveRule").Comment("归档规则"),
+ field.String("operator").Comment("归档人员"),
+ field.String("archiveExport").Comment("归档任务的报告")}
 }
 func (TInspectArchive) Edges() []ent.Edge {
 	return nil
