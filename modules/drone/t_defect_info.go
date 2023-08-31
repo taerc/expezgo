@@ -14,7 +14,19 @@ type TDefectInfo struct {
 }
 
 func (TDefectInfo) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("imgId").Comment("图片ID"), field.String("defectName").Comment("缺陷名称"), field.String("category").Comment("缺陷大类"), field.String("level").Comment("缺陷等级"), field.String("code").Comment("缺陷code码"), field.String("xmin").Comment("缺陷位置"), field.String("ymin").Comment("缺陷位置"), field.String("xmax").Comment("缺陷位置"), field.String("ymax").Comment("缺陷位置"), field.Bool("status").Comment("-1:删除；0:识别；1修改或增加"), field.Time("updateTime").Comment("更新时间"), field.Time("createTime").Comment("创建时间")}
+	return []ent.Field{field.Int("id"),
+ field.Int("imgId").Comment("图片ID"),
+ field.String("defectName").Comment("缺陷名称"),
+ field.String("category").Comment("缺陷大类"),
+ field.String("level").Comment("缺陷等级"),
+ field.String("code").Comment("缺陷code码"),
+ field.String("xmin").Comment("缺陷位置"),
+ field.String("ymin").Comment("缺陷位置"),
+ field.String("xmax").Comment("缺陷位置"),
+ field.String("ymax").Comment("缺陷位置"),
+ field.Bool("status").Comment("-1:删除；0:识别；1修改或增加"),
+ field.Time("updateTime").Comment("更新时间"),
+ field.Time("createTime").Comment("创建时间")}
 }
 func (TDefectInfo) Edges() []ent.Edge {
 	return nil

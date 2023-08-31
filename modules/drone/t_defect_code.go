@@ -14,7 +14,14 @@ type TDefectCode struct {
 }
 
 func (TDefectCode) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.String("code").Comment("缺陷code"), field.String("defectName").Comment("缺陷名称"), field.String("category").Comment("缺陷类别"), field.String("level").Comment("缺陷等级"), field.Float32("acceptScore").Comment("最低接收分值"), field.Int8("status").Comment("0:不支持，1：支持"), field.Time("createTime").Comment("创建时间")}
+	return []ent.Field{field.Int("id"),
+ field.String("code").Comment("缺陷code"),
+ field.String("defectName").Comment("缺陷名称"),
+ field.String("category").Comment("缺陷类别"),
+ field.String("level").Comment("缺陷等级"),
+ field.Float32("acceptScore").Comment("最低接收分值"),
+ field.Int8("status").Comment("0:不支持，1：支持"),
+ field.Time("createTime").Comment("创建时间")}
 }
 func (TDefectCode) Edges() []ent.Edge {
 	return nil

@@ -13,7 +13,10 @@ type TTaskImage struct {
 }
 
 func (TTaskImage) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("taskId"), field.Int("towerId"), field.Int("imgId")}
+	return []ent.Field{field.Int("id"),
+ field.Int("taskId"),
+ field.Int("towerId"),
+ field.Int("imgId")}
 }
 func (TTaskImage) Edges() []ent.Edge {
 	return nil

@@ -14,7 +14,15 @@ type TLineTowerInfo struct {
 }
 
 func (TLineTowerInfo) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("lineId").Comment("线路ID"), field.Int("towerId").Comment("塔资产ID"), field.String("towerNo").Comment("塔号"), field.String("towerType").Comment("塔类型"), field.Time("updateTime").Comment("更新时间"), field.Time("createTime").Comment("创建时间"), field.Int32("sort").Comment("组内排序"), field.Float32("span").Comment("档距，距上一级杆塔")}
+	return []ent.Field{field.Int("id"),
+ field.Int("lineId").Comment("线路ID"),
+ field.Int("towerId").Comment("塔资产ID"),
+ field.String("towerNo").Comment("塔号"),
+ field.String("towerType").Comment("塔类型"),
+ field.Time("updateTime").Comment("更新时间"),
+ field.Time("createTime").Comment("创建时间"),
+ field.Int32("sort").Comment("组内排序"),
+ field.Float32("span").Comment("档距，距上一级杆塔")}
 }
 func (TLineTowerInfo) Edges() []ent.Edge {
 	return nil
