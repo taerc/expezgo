@@ -13,7 +13,11 @@ type TLineImage struct {
 }
 
 func (TLineImage) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("lineId").Comment("线路ID"), field.Int("towerId").Comment("杆塔ID"), field.Int("taskId").Comment("任务ID"), field.Int("imgId").Comment("图片ID")}
+	return []ent.Field{field.Int("id"),
+ field.Int("lineId").Comment("线路ID"),
+ field.Int("towerId").Comment("杆塔ID"),
+ field.Int("taskId").Comment("任务ID"),
+ field.Int("imgId").Comment("图片ID")}
 }
 func (TLineImage) Edges() []ent.Edge {
 	return nil

@@ -14,7 +14,10 @@ type TOperationInfo struct {
 }
 
 func (TOperationInfo) Fields() []ent.Field {
-	return []ent.Field{field.Int("id").Comment("主键id"), field.String("name").Comment("名称"), field.Time("createTime").Comment("创建时间"), field.Time("updateTime").Comment("更新时间")}
+	return []ent.Field{field.Int("id").Comment("主键id"),
+ field.String("name").Comment("名称"),
+ field.Time("createTime").Comment("创建时间"),
+ field.Time("updateTime").Comment("更新时间")}
 }
 func (TOperationInfo) Edges() []ent.Edge {
 	return nil

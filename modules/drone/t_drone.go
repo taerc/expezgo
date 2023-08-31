@@ -13,7 +13,12 @@ type TDrone struct {
 }
 
 func (TDrone) Fields() []ent.Field {
-	return []ent.Field{field.Int("id"), field.Int("orgId").Comment("组织单位ID"), field.String("orgName").Comment("组织单位名称"), field.String("model").Comment("无人机型号"), field.String("devSn").Comment("设备SN"), field.Time("createTime").Comment("创建时间")}
+	return []ent.Field{field.Int("id"),
+ field.Int("orgId").Comment("组织单位ID"),
+ field.String("orgName").Comment("组织单位名称"),
+ field.String("model").Comment("无人机型号"),
+ field.String("devSn").Comment("设备SN"),
+ field.Time("createTime").Comment("创建时间")}
 }
 func (TDrone) Edges() []ent.Edge {
 	return nil
