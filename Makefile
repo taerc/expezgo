@@ -64,6 +64,8 @@ server-ws:research/exp_07_server_ws.go
 	go build -o $(BUILD)/server-ws research/exp_07_server_ws.go
 client-ws:research/exp_07_client_ws.go
 	go build -o $(BUILD)/client-ws research/exp_07_client_ws.go
+db-driver:research/exp_21_db_driver.go
+	go build -o $(BUILD)/db-driver research/exp_21_db_driver.go
 
 ent-hook:research/exp_19_ent_hook.go
 	go build -o $(BUILD)/ent-hook research/exp_19_ent_hook.go
