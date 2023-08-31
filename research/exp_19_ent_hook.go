@@ -108,8 +108,8 @@ func main() {
 	//client.Debug()
 	ctx := context.Background()
 
-	// AddUser(ctx, DBD())
+	AddUser(ctx, DBD())
 
-	UpdateUser(ctx, DBD())
+	// UpdateUser(ctx, DBD())
 
 }
