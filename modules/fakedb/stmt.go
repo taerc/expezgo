@@ -16,8 +16,9 @@ func (stmt *MyStmt) Close() error {
 }
 
 // Query  implement for Query
-func (stmt *MyStmt) Query(args []driver.Value) (driver.Rows, error) {
+func (stmt *MyStmt) Query(query string, args []driver.Value) (driver.Rows, error) {
 	log.Println("do query", args)
+	log.Println(query)
 	myrows := MyRowS{
 		Size: 3,
 	}
