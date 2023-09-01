@@ -1,6 +1,7 @@
 package fakedb
 
 import (
+	"context"
 	"database/sql/driver"
 	"errors"
 	"log"
@@ -16,9 +17,8 @@ func (stmt *MyStmt) Close() error {
 }
 
 // Query  implement for Query
-func (stmt *MyStmt) Query(query string, args []driver.Value) (driver.Rows, error) {
+func (stmt *MyStmt) Query(args []driver.Value) (driver.Rows, error) {
 	log.Println("do query", args)
-	log.Println(query)
 	myrows := MyRowS{
 		Size: 3,
 	}
@@ -34,4 +34,10 @@ func (stmt *MyStmt) NumInput() int {
 // Exec exec  implement
 func (stmt *MyStmt) Exec(args []driver.Value) (driver.Result, error) {
 	return nil, errors.New("some wrong")
+}
+
+func (stmt *MyStmt) QueryContext(ctx context.Context, query string, args []driver.NamedValue) (driver.Rows, error) {
+	log.Println("do query context", args)
+	log.Println("do query context", query)
+	return nil, nil
 }
