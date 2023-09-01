@@ -18,7 +18,7 @@ func main() {
 	ctx := context.Background()
 
 	type User struct {
-		Name    string
+		Name    string `sql:"name"`
 		Age     int
 		Version string
 	}
@@ -31,10 +31,13 @@ func main() {
 	// _, err = db.Query("select name, age, version from demoapp", "1 ", "2")
 	rows, err := db.QueryContext(ctx, "select * from demoapp", "1", "2")
 	fmt.Println(rows)
-	rows.Scan(&u.Name, &u.Age, &u.Version)
-	fmt.Println(u.Name)
-	fmt.Println(u.Age)
-	fmt.Println(u.Version)
+	fmt.Println(rows.Columns())
+	for rows.Next() {
+		rows.Scan(&u.Name, &u.Age, &u.Version)
+		fmt.Println(u.Name)
+		fmt.Println(u.Age)
+		fmt.Println(u.Version)
+	}
 	// _, err = db.ExecContext(ctx, "insert hello world", "1", "2")
 	if err != nil {
 		log.Fatal("some wrong for query", err.Error())
