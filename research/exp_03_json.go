@@ -78,9 +78,12 @@ func testSlice() []int {
 
 func main() {
 
-	n := testSlice()
-	fmt.Printf("n %p", &n)
-	m := testSlice()
-	fmt.Printf("m %p", &m)
+	bts, e := json.Marshal(1)
+
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+
+	fmt.Println(string(bts))
 
 }

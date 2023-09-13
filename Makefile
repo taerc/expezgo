@@ -69,6 +69,8 @@ db-driver:research/exp_21_db_driver.go
 
 ent-hook:research/exp_19_ent_hook.go
 	go build -o $(BUILD)/ent-hook research/exp_19_ent_hook.go
+json:research/exp_03_json.go
+	go build -o $(BUILD)/json research/exp_03_json.go
 
 xls:research/exp_20_xls.go
 	go build -o $(BUILD)/xls research/exp_20_xls.go
