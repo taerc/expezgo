@@ -74,6 +74,8 @@ json:research/exp_03_json.go
 
 xls:research/exp_20_xls.go
 	go build -o $(BUILD)/xls research/exp_20_xls.go
+fsevent:research/exp_22_fsevent.go
+	go build -o $(BUILD)/fsevent research/exp_22_fsevent.go
 
 graph:
 	@entviz ./modules/drone
