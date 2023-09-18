@@ -22,8 +22,9 @@ func main() {
 				if !ok {
 					return
 				}
-				log.Println("event:", event)
-				if event.Has(fsnotify.Write) {
+				log.Println("path:", event.Name)
+				log.Println("op:", event.Op)
+				if event.Op&fsnotify.Write == fsnotify.Write {
 					log.Println("modified file:", event.Name)
 				}
 			case err, ok := <-watcher.Errors:
@@ -36,7 +37,7 @@ func main() {
 	}()
 
 	// Add a path.
-	err = watcher.Add("/tmp")
+	err = watcher.Add("/Users/rotaercw/wkspace/git/expezgo/build")
 	if err != nil {
 		log.Fatal(err)
 	}
