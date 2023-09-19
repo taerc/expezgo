@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"os"
 	"strconv"
@@ -72,27 +74,68 @@ func intToTimeFormat(i int) string {
 	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }
 
-func generateBash(indexs []string, length int) string {
-	tplText := `
-#!/bin/sh
-VIDEO_FILE=VID_20230913_210108.mp4
-OUT=goal
-INDEX=(__INDEX__)
-LIMIT=__LIMIT__
-mkdir -p ${OUT}
-for i in ${INDEX[*]}
-do
-	ffmpeg -i ${VIDEO_FILE} -ss  00:02:38 -t 5 -an -vcodec copy ${OUT}/${VIDEO_FILE}_01.mp4
-done
-`
-
-	return s
-
+type Index struct {
+	Index       []string
+	Limit       int
+	Offset      int
+	IndexString string
 }
 
-type Index struct {
-	Index string
-	Limit int
+func NewIndex() *Index {
+	return &Index{
+		Index:       make([]string, 0),
+		IndexString: "",
+		Limit:       5,
+		Offset:      3,
+	}
+}
+
+func (i *Index) AppendTimeStamp(ts string) {
+	i.Index = append(i.Index, ts)
+}
+
+func (i *Index) AppendSec(s int) {
+	if s < 3 {
+		return
+	}
+	i.Index = append(i.Index, intToTimeFormat(s-3))
+}
+
+func (i *Index) SetLimit(l int) {
+	i.Limit = l
+}
+
+func (i *Index) Template() {
+	tplText := `#!/bin/sh
+VIDEO_FILE=__FILE__
+OUT=goal
+LIMIT={{.Limit}}
+mkdir -p ${OUT}
+{{- range $i, $e := .Index}}
+ffmpeg -i ${VIDEO_FILE} -ss  {{$e}} -t ${LIMIT} -an -vcodec copy ${OUT}/${VIDEO_FILE}_{{$i}}.mp4
+{{- end }}
+`
+	i.IndexString = strings.Join(i.Index, " ")
+	tpl, err := template.New("bash").Parse(tplText)
+	if err != nil {
+		fmt.Printf("failed parse tpltext,err:%s\n", err.Error())
+	}
+	var buf bytes.Buffer
+	err = tpl.Execute(&buf, i)
+	if err != nil {
+		fmt.Printf("failed execute tpltext,err:%s\n", err.Error())
+	}
+
+	filePath := "export.sh"
+	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		fmt.Println("文件打开失败", err)
+	}
+	//及时关闭file句柄
+	defer file.Close()
+	//写入文件时，使用带缓存的 *Writer
+	buf.WriteTo(file)
+
 }
 
 func main() {
@@ -104,18 +147,20 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	indx := Index{}
+	indx := NewIndex()
 
 	for _, line := range lines {
-		fmt.Println(line)
+		// fmt.Println(line)
 		s, e := stringToSeconds(strings.TrimSpace(line))
 		if e != nil {
 			fmt.Println(e.Error())
 			continue
 		}
-		fmt.Println(intToTimeFormat(s - 3))
+		fmt.Println(s)
+		indx.AppendSec(s)
+		// fmt.Println(intToTimeFormat(s - 3))
 	}
 
-	indx.Index = 
+	indx.Template()
 
 }
