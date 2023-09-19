@@ -76,6 +76,8 @@ xls:research/exp_20_xls.go
 	go build -o $(BUILD)/xls research/exp_20_xls.go
 fsevent:research/exp_22_fsevent.go
 	go build -o $(BUILD)/fsevent research/exp_22_fsevent.go
+videoindex:research/exp_23_videoindex.go
+	go build -o $(BUILD)/videoindex research/exp_23_videoindex.go
 
 graph:
 	@entviz ./modules/drone
