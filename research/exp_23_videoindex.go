@@ -76,18 +76,16 @@ func intToTimeFormat(i int) string {
 }
 
 type Index struct {
-	Index       []string
-	Limit       int
-	Offset      int
-	IndexString string
+	Index  []string
+	Limit  int
+	Offset int
 }
 
-func NewIndex() *Index {
+func NewIndex(limit, offset int) *Index {
 	return &Index{
-		Index:       make([]string, 0),
-		IndexString: "",
-		Limit:       5,
-		Offset:      3,
+		Index:  make([]string, 0),
+		Limit:  limit,
+		Offset: offset,
 	}
 }
 
@@ -116,7 +114,6 @@ mkdir -p ${OUT}
 ffmpeg -i ${VIDEO_FILE} -ss  {{$e}} -t ${LIMIT} -an -vcodec copy ${OUT}/${VIDEO_FILE}_{{$i}}.mp4
 {{- end }}
 `
-	i.IndexString = strings.Join(i.Index, " ")
 	tpl, err := template.New("bash").Parse(tplText)
 	if err != nil {
 		fmt.Printf("failed parse tpltext,err:%s\n", err.Error())
@@ -141,21 +138,22 @@ ffmpeg -i ${VIDEO_FILE} -ss  {{$e}} -t ${LIMIT} -an -vcodec copy ${OUT}/${VIDEO_
 
 func main() {
 
-	var port int
-	var multicore bool
+	var limit int
+	var offset int
+	var videoIndex string
 
 	// Example command: go run echo.go --port 9000 --multicore=true
-	flag.IntVar(&port, "port", 9000, "--port 9000")
-	flag.BoolVar(&multicore, "multicore", false, "--multicore true")
-
-	videoIndex := "/Users/rotaercw/Downloads/video.index"
+	flag.IntVar(&limit, "limit", 5, "--limit 5")
+	flag.IntVar(&offset, "offset", 5, "--offset 5")
+	flag.StringVar(&videoIndex, "index", "video.index", "--index video.index")
+	flag.Parse()
 
 	lines, err := ReadLines(videoIndex)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
-	indx := NewIndex()
+	indx := NewIndex(limit, offset)
 
 	for _, line := range lines {
 		// fmt.Println(line)
