@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"flag"
 	"fmt"
 	"html/template"
 	"io"
@@ -139,6 +140,13 @@ ffmpeg -i ${VIDEO_FILE} -ss  {{$e}} -t ${LIMIT} -an -vcodec copy ${OUT}/${VIDEO_
 }
 
 func main() {
+
+	var port int
+	var multicore bool
+
+	// Example command: go run echo.go --port 9000 --multicore=true
+	flag.IntVar(&port, "port", 9000, "--port 9000")
+	flag.BoolVar(&multicore, "multicore", false, "--multicore true")
 
 	videoIndex := "/Users/rotaercw/Downloads/video.index"
 
