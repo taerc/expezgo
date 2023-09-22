@@ -17,8 +17,20 @@ func (es *echoServer) OnInitComplete(srv gnet.Server) (action gnet.Action) {
 		srv.Addr.String(), srv.Multicore, srv.NumEventLoop)
 	return
 }
+
+func (es *echoServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
+	fmt.Println("open ")
+
+	return
+}
+
+func (es *echoServer) OnClosed(c gnet.Conn, err error) (action gnet.Action) {
+	fmt.Println("close ", c.RemoteAddr().String())
+	return
+}
 func (es *echoServer) React(frame []byte, c gnet.Conn) (out []byte, action gnet.Action) {
 	// Echo synchronously.
+	fmt.Println(string(frame))
 	out = frame
 	return
 
