@@ -78,6 +78,8 @@ fsevent:research/exp_22_fsevent.go
 	go build -o $(BUILD)/fsevent research/exp_22_fsevent.go
 videoindex:research/exp_23_videoindex.go
 	go build -o $(BUILD)/videoindex research/exp_23_videoindex.go
+tcpserver:research/exp_24_tcpserver.go
+	go build -o $(BUILD)/tcpserver research/exp_24_tcpserver.go
 
 graph:
 	@entviz ./modules/drone
