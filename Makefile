@@ -80,6 +80,9 @@ videoindex:research/exp_23_videoindex.go
 	go build -o $(BUILD)/videoindex research/exp_23_videoindex.go
 tcpserver:research/exp_24_tcpserver.go
 	go build -o $(BUILD)/tcpserver research/exp_24_tcpserver.go
+byteorder:research/exp_25_byteorder.go
+	go build -o $(BUILD)/byteorder research/exp_25_byteorder.go
+
 
 graph:
 	@entviz ./modules/drone
