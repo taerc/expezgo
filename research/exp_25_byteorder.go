@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
+	"unsafe"
 )
 
 func main() {
@@ -21,5 +22,15 @@ func main() {
 	for i, v := range buf {
 		fmt.Println(fmt.Sprintf("%d : 0x%02x", i, v))
 	}
+
+	fmt.Println("testing ...")
+
+	z := unsafe.Pointer(&data)
+	b := *(*byte)(unsafe.Pointer(z))
+	fmt.Printf("==%02x\n", b)
+	b = *(*byte)(unsafe.Pointer(unsafe.Add(z, 7)))
+	fmt.Printf("==%02x\n", b)
+
+	unsafe.Sizeof(byte)
 
 }
