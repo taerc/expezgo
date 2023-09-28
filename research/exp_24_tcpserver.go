@@ -45,10 +45,44 @@ func (es *echoServer) React(frame []byte, c gnet.Conn) (out []byte, action gnet.
 	*/
 }
 
+// CeilToPowerOfTwo returns n if it is a power-of-two, otherwise the next-highest power-of-two.
+func CeilToPowerOfTwo(n int) int {
+	fmt.Println(n)
+	n--
+
+	fmt.Println(n)
+	n |= n >> 1
+	fmt.Println(n)
+	n |= n >> 2
+	fmt.Println(n)
+	n |= n >> 4
+	fmt.Println(n)
+	n |= n >> 8
+	fmt.Println(n)
+	n |= n >> 16
+	fmt.Println(n)
+	n++
+	fmt.Println(n)
+
+	return n
+}
+
+func CeilToPowerOfx(n int) int {
+
+	fmt.Println("n")
+	fmt.Println(n)
+
+	n = ((n + 15) >> 4) << 4
+	fmt.Println(n)
+
+	return n
+}
+
 func main() {
 	var port int
 	var multicore bool
 
+	CeilToPowerOfTwo(100)
 	// Example command: go run echo.go --port 9000 --multicore=true
 	flag.IntVar(&port, "port", 9000, "--port 9000")
 	flag.BoolVar(&multicore, "multicore", false, "--multicore true")
