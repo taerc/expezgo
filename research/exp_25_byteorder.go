@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"unsafe"
@@ -35,13 +36,13 @@ type GSFrameCodec struct {
 	RecvSeq  uint64 // inc
 	Type     byte   // 0x00 request 0x01 response
 	Length   uint32
-	Data     []byte
-	EndTag   uint16
+	// Data     *byte
+	// EndTag   uint16
 
-	config *GSFrameCodecConfig
+	// config *GSFrameCodecConfig
 }
 
-func main() {
+func ednian() {
 
 	var data uint64 = 0x1122334455667788
 
@@ -69,12 +70,50 @@ func main() {
 	fmt.Println(unsafe.Sizeof(c))
 
 	x := &GSFrameCodec{}
-
 	fmt.Println("offset startTag :", unsafe.Offsetof(x.StartTag))
 	fmt.Println("offset sendSeq:", unsafe.Offsetof(x.SendSeq))
 	fmt.Println("offset recvSeq:", unsafe.Offsetof(x.RecvSeq))
 	fmt.Println("offset type:", unsafe.Offsetof(x.Type))
 	fmt.Println("offset recvSeq:", unsafe.Offsetof(x.Length))
-	fmt.Println("offset recvSeq:", unsafe.Offsetof(x.EndTag))
+	// fmt.Println("offset recvSeq:", unsafe.Offsetof(x.EndTag))
+
+}
+
+func packCase() {
+	frame := GSFrameCodec{}
+	frame.StartTag = 0xEB90
+	frame.SendSeq = 1
+	frame.RecvSeq = 1
+	frame.Type = 0
+	frame.Length = 8
+	// frame.Data = make([]byte, 8)
+	// frame.EndTag = 0xEB90
+	data := make([]byte, 16)
+	for i := 0; i < 16; i++ {
+		data[i] = byte(int('A') + i)
+	}
+
+	buf := &bytes.Buffer{}
+	err := binary.Write(buf, binary.LittleEndian, &frame)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	err = binary.Write(buf, binary.LittleEndian, data)
+	if err != nil {
+		fmt.Println("000")
+		fmt.Println(err.Error())
+	}
+	err = binary.Write(buf, binary.LittleEndian, frame.StartTag)
+	if err != nil {
+		fmt.Println("1111")
+		fmt.Println(err.Error())
+	}
+
+	fmt.Println("len ", buf.Len())
+
+}
+
+func main() {
+	packCase()
 
 }
