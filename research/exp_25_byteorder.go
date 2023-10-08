@@ -36,7 +36,7 @@ type GSFrameCodec struct {
 	RecvSeq  uint64 // inc
 	Type     byte   // 0x00 request 0x01 response
 	Length   uint32
-	// Data     *byte
+	// Data     string
 	// EndTag   uint16
 
 	// config *GSFrameCodecConfig
@@ -86,7 +86,7 @@ func packCase() {
 	frame.RecvSeq = 1
 	frame.Type = 0
 	frame.Length = 8
-	// frame.Data = make([]byte, 8)
+	// frame.Data = "ABCDEFGH"
 	// frame.EndTag = 0xEB90
 	data := make([]byte, 16)
 	for i := 0; i < 16; i++ {
@@ -98,16 +98,16 @@ func packCase() {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	err = binary.Write(buf, binary.LittleEndian, data)
-	if err != nil {
-		fmt.Println("000")
-		fmt.Println(err.Error())
-	}
-	err = binary.Write(buf, binary.LittleEndian, frame.StartTag)
-	if err != nil {
-		fmt.Println("1111")
-		fmt.Println(err.Error())
-	}
+	// err = binary.Write(buf, binary.LittleEndian, data)
+	// if err != nil {
+	// 	fmt.Println("000")
+	// 	fmt.Println(err.Error())
+	// }
+	// err = binary.Write(buf, binary.LittleEndian, frame.StartTag)
+	// if err != nil {
+	// 	fmt.Println("1111")
+	// 	fmt.Println(err.Error())
+	// }
 
 	fmt.Println("len ", buf.Len())
 
