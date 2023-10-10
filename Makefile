@@ -71,6 +71,8 @@ ent-hook:research/exp_19_ent_hook.go
 	go build -o $(BUILD)/ent-hook research/exp_19_ent_hook.go
 json:research/exp_03_json.go
 	go build -o $(BUILD)/json research/exp_03_json.go
+ent-sql:research/exp_27_ent_sql.go
+	go build -o $(BUILD)/ent-sql research/exp_27_ent_sql.go
 
 xls:research/exp_20_xls.go
 	go build -o $(BUILD)/xls research/exp_20_xls.go
