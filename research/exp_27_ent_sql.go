@@ -172,6 +172,32 @@ func EdgeQuery(ctx context.Context, client *ent.Client) {
 
 }
 
+func DyTableName(ctx context.Context, client *ent.Client) {
+
+	// original
+	cities, e := client.City.Query().All(ctx)
+	if e != nil {
+		fmt.Println(e)
+	}
+	for i, c := range cities {
+		fmt.Println(i, c.Name)
+	}
+
+	// dyname
+	table := "city_010"
+	cities, e = client.City.Query().Where(func(s *sql.Selector) {
+		table := sql.Table(table)
+		s.From(table)
+	}).All(ctx)
+	if e != nil {
+		fmt.Println(e)
+	}
+	for i, c := range cities {
+		fmt.Println(i, c.Name)
+	}
+
+}
+
 func DBD() *ent.Client {
 
 	drv, e := ezgo.EntDBDriver("mysql")
@@ -184,7 +210,7 @@ func DBD() *ent.Client {
 	c := ent.NewClient(ent.Driver(dialect.DebugWithContext(drv, func(ctx context.Context, a ...any) {
 	})))
 
-	return c
+	return c.Debug()
 }
 func main() {
 
@@ -235,6 +261,8 @@ func main() {
 
 	// edges
 
-	EdgeQuery(ctx, DBD())
+	// EdgeQuery(ctx, DBD())
+
+	DyTableName(ctx, DBD())
 
 }
