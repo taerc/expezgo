@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"expezgo/modules/ent"
 	"expezgo/modules/ent/city"
 	"expezgo/modules/ent/county"
 	"expezgo/modules/ent/licence"
 	"expezgo/modules/ent/province"
 	"fmt"
+
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/taerc/ezgo"
 	"github.com/taerc/ezgo/conf"
@@ -140,6 +141,37 @@ func entLog(ctx context.Context, args ...any) {
 	ezgo.Info(nil, "ENT", args[0].(string))
 }
 
+func EdgeQuery(ctx context.Context, client *ent.Client) {
+
+	cites, e := client.City.Query().Where(city.Pid(2)).WithProvinces().All(ctx)
+
+	if e != nil {
+		fmt.Println(e)
+	}
+
+	for c, v := range cites {
+		fmt.Println(c)
+		fmt.Println(v.Edges.Provinces.Name)
+		fmt.Println(v.Name)
+	}
+
+	fmt.Println("===")
+	provices, e := client.Province.Query().Where(province.ID(2)).WithCities().All(ctx)
+
+	if e != nil {
+		fmt.Println(e)
+	}
+
+	for c, p := range provices {
+		fmt.Println(c)
+		fmt.Println(p.Name)
+		for i, c := range p.Edges.Cities {
+			fmt.Println(i, c.Name)
+		}
+	}
+
+}
+
 func DBD() *ent.Client {
 
 	drv, e := ezgo.EntDBDriver("mysql")
@@ -165,6 +197,7 @@ func main() {
 		Charset:       "utf8mb4",
 		ParseTime:     "true",
 		Loc:           "Local",
+		MaxLifeTime:   "1h",
 	}
 
 	//ezgo.WithComponentMySQL("mysql", &c)
@@ -198,5 +231,10 @@ func main() {
 	//Query3TbLeftJoin(ctx, client)
 	//time.Sleep(3 * time.Second)
 
-	RawSqlExample(ctx, DBD())
+	// RawSqlExample(ctx, DBD())
+
+	// edges
+
+	EdgeQuery(ctx, DBD())
+
 }
