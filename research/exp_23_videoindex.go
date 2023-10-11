@@ -94,10 +94,10 @@ func (i *Index) AppendTimeStamp(ts string) {
 }
 
 func (i *Index) AppendSec(s int) {
-	if s < 3 {
+	if s < i.Offset {
 		return
 	}
-	i.Index = append(i.Index, intToTimeFormat(s-3))
+	i.Index = append(i.Index, intToTimeFormat(s-i.Offset))
 }
 
 func (i *Index) SetLimit(l int) {
@@ -143,8 +143,8 @@ func main() {
 	var videoIndex string
 
 	// Example command: go run echo.go --port 9000 --multicore=true
-	flag.IntVar(&limit, "limit", 5, "--limit 5")
-	flag.IntVar(&offset, "offset", 5, "--offset 5")
+	flag.IntVar(&limit, "limit", 20, "--limit 20")
+	flag.IntVar(&offset, "offset", 10, "--offset 10")
 	flag.StringVar(&videoIndex, "index", "video.index", "--index video.index")
 	flag.Parse()
 
