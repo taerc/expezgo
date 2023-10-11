@@ -183,17 +183,23 @@ func DyTableName(ctx context.Context, client *ent.Client) {
 		fmt.Println(i, c.Name)
 	}
 	// dyname
-	table := "city_010"
-	cities, e = client.City.Query().Label(table).Modify(func(s *sql.Selector) {
-		// s.TableName(table)
-		s.From(sql.Table(table))
+	table := "city"
+	// cities, e = client.City.Query().Table(table).Modify(func(s *sql.Selector) {
+	// 	// s.TableName(table)
+	// 	s.From(sql.Table(table))
 
-	}).All(ctx)
+	// }).All(ctx)
+	cities, e = client.City.Query().Table(table).Where(city.Pid(1)).WithProvinces().All(ctx)
 	if e != nil {
 		fmt.Println(e)
 	}
-	for i, c := range cities {
-		fmt.Println(i, c.Name)
+	// for i, c := range cities {
+	// 	fmt.Println(i, c.Name)
+	// }
+	for c, v := range cities {
+		fmt.Println(c)
+		fmt.Println(v.Edges.Provinces.Name)
+		fmt.Println(v.Name)
 	}
 
 }
