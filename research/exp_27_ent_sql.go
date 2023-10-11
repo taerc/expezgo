@@ -182,12 +182,12 @@ func DyTableName(ctx context.Context, client *ent.Client) {
 	for i, c := range cities {
 		fmt.Println(i, c.Name)
 	}
-
 	// dyname
 	table := "city_010"
-	cities, e = client.City.Query().Select(city.FieldID).Where(func(s *sql.Selector) {
-		table := sql.Table(table)
-		s.From(table)
+	cities, e = client.City.Query().Label(table).Modify(func(s *sql.Selector) {
+		// s.TableName(table)
+		s.From(sql.Table(table))
+
 	}).All(ctx)
 	if e != nil {
 		fmt.Println(e)
