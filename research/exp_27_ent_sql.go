@@ -185,7 +185,7 @@ func DyTableName(ctx context.Context, client *ent.Client) {
 
 	// dyname
 	table := "city_010"
-	cities, e = client.City.Query().Where(func(s *sql.Selector) {
+	cities, e = client.City.Query().Select(city.FieldID).Where(func(s *sql.Selector) {
 		table := sql.Table(table)
 		s.From(table)
 	}).All(ctx)
