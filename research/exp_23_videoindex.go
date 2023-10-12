@@ -75,29 +75,49 @@ func intToTimeFormat(i int) string {
 	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }
 
+type VideoSlice struct {
+	TimeOffset string
+	Actor      string
+}
 type Index struct {
-	Index  []string
+	Slice  []VideoSlice
 	Limit  int
 	Offset int
 }
 
 func NewIndex(limit, offset int) *Index {
 	return &Index{
-		Index:  make([]string, 0),
+		Slice:  make([]VideoSlice, 0),
 		Limit:  limit,
 		Offset: offset,
 	}
 }
 
-func (i *Index) AppendTimeStamp(ts string) {
-	i.Index = append(i.Index, ts)
-}
+func (i *Index) AppendLine(str string) {
 
-func (i *Index) AppendSec(s int) {
-	if s < i.Offset {
+	vs, e := i.stringToSlice(str)
+	if e != nil {
+		fmt.Println(e)
 		return
 	}
-	i.Index = append(i.Index, intToTimeFormat(s-i.Offset))
+	i.appendVideoSlice(vs)
+
+}
+func (i *Index) stringToSlice(str string) (vs VideoSlice, e error) {
+	data := strings.Fields(str)
+	if len(data) < 2 {
+		e = errors.New("invalid format")
+		return
+	}
+	if sec, e := stringToSeconds(data[0]); e == nil {
+		vs.TimeOffset = intToTimeFormat(sec - i.Offset)
+		vs.Actor = strings.TrimSpace(data[1])
+	}
+	return
+}
+
+func (i *Index) appendVideoSlice(vs VideoSlice) {
+	i.Slice = append(i.Slice, vs)
 }
 
 func (i *Index) SetLimit(l int) {
@@ -110,8 +130,8 @@ VIDEO_FILE=__FILE__
 OUT=goal
 LIMIT={{.Limit}}
 mkdir -p ${OUT}
-{{- range $i, $e := .Index}}
-ffmpeg -i ${VIDEO_FILE} -ss  {{$e}} -t ${LIMIT} -an -vcodec copy ${OUT}/${VIDEO_FILE}_{{$i}}.mp4
+{{- range $i, $e := .Slice}}
+ffmpeg -i ${VIDEO_FILE} -ss  {{$e.TimeOffset}} -t ${LIMIT} -an -vcodec copy ${OUT}/${VIDEO_FILE}_{{$e.Actor}}_{{$i}}.mp4
 {{- end }}
 `
 	tpl, err := template.New("bash").Parse(tplText)
@@ -142,7 +162,6 @@ func main() {
 	var offset int
 	var videoIndex string
 
-	// Example command: go run echo.go --port 9000 --multicore=true
 	flag.IntVar(&limit, "limit", 20, "--limit 20")
 	flag.IntVar(&offset, "offset", 10, "--offset 10")
 	flag.StringVar(&videoIndex, "index", "video.index", "--index video.index")
@@ -156,15 +175,8 @@ func main() {
 	indx := NewIndex(limit, offset)
 
 	for _, line := range lines {
-		// fmt.Println(line)
-		s, e := stringToSeconds(strings.TrimSpace(line))
-		if e != nil {
-			fmt.Println(e.Error())
-			continue
-		}
-		fmt.Println(s)
-		indx.AppendSec(s)
-		// fmt.Println(intToTimeFormat(s - 3))
+		fmt.Println(line)
+		indx.AppendLine(line)
 	}
 
 	indx.Template()
