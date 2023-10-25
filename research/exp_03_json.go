@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"sync"
 )
 
 func order(key string, columns ...string) {
@@ -92,20 +93,45 @@ type mediaInfo struct {
 	Data map[string]int
 }
 
-func mapJson() {
-
-	mi := mediaInfo{}
-	mi.Id = 13
-	mi.Data = make(map[string]int)
-	mi.Data["wang"] = 12
-	mi.Data["chen"] = 24
-	bts, e := json.Marshal(mi)
-	if e != nil {
-		fmt.Println(e.Error())
-	}
-	fmt.Println(string(bts))
+type MediaStreamChannelInfo struct {
+	Status      int
+	MessageType int
 }
 
+type SRSMediaSteamManager struct {
+	// 播放请求通信通道
+	channelMessageBoxRWMutex sync.RWMutex
+	ChannelMessageBox        map[string]chan MediaStreamChannelInfo // channel
+
+	// 通道信息
+	channelInfoRWMutex sync.RWMutex
+	ChannelInfo        map[string]MediaStreamChannelInfo // streamId:info
+	// 通道播放计数
+	channelPlayCounterRWMutex sync.RWMutex
+	ChannelPlayCounter        map[string]int // streamId : counter
+
+	// push token
+	pushTokenRWMutex sync.RWMutex
+	PushToken        map[string]string // token:streamId
+	// play token
+	playTokenRWMutex sync.RWMutex
+	PlayToken        map[string]int // token
+}
+
+func mapJson() {
+
+	ssm := SRSMediaSteamManager{}
+	ssm.ChannelInfo = make(map[string]MediaStreamChannelInfo)
+	ssm.ChannelInfo["dddd"] = MediaStreamChannelInfo{Status: 0, MessageType: 1}
+
+	data, e := json.Marshal(ssm)
+
+	if e != nil {
+		fmt.Println(e)
+	}
+	fmt.Println(string(data))
+
+}
 func main() {
 	mapJson()
 }
