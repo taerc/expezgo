@@ -5,33 +5,33 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/shirou/gopsutil/v3/cpu"
-	"github.com/shirou/gopsutil/v3/disk"
-	"github.com/shirou/gopsutil/v3/mem"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/mem"
 )
 
 type DDApp struct {
 	AccessToken string
-	Secret string
-	Command string
-	Config string
+	Secret      string
+	Command     string
+	Config      string
 }
-
 type DDNATItem struct {
 	Name string `json:"name"`
-	Url string `json:"url"`
+	Url  string `json:"url"`
 }
 type DDNAT struct {
-	Title string `json:"title"`
-	Items []DDNATItem `json:"items"`
-	Token string `json:"token"`
-	Secret string `json:"secret"`
+	Title  string      `json:"title"`
+	Items  []DDNATItem `json:"items"`
+	Token  string      `json:"token"`
+	Secret string      `json:"secret"`
 }
 
-func (dd *DDNAT)Load(conf string)error {
+func (dd *DDNAT) Load(conf string) error {
 	fd, err := os.Open(conf)
 	if err != nil {
 		fmt.Println("dinggroup [path] ", conf)
@@ -45,7 +45,7 @@ func (dd *DDNAT)Load(conf string)error {
 		fmt.Println("invalid ", err.Error())
 		return err
 	}
-	return  nil
+	return nil
 }
 
 func (dd *DDNAT) ToString() string {
@@ -62,7 +62,7 @@ func (dd *DDNAT) ToString() string {
 }
 
 type DDMessage struct {
-	Title string `json:"title"`
+	Title    string `json:"title"`
 	Describe string `json:"describe"`
 }
 
@@ -76,20 +76,19 @@ func (dd *DDMessage) ToString() string {
 }
 
 type DDMonitor struct {
-	Title string `json:"title"`
-	Describe string `json:"describe"`
-	CPU float64
-	Memory float64
-	DiskUsage []float64
-	Disks []string
-	Paths string
+	Title      string `json:"title"`
+	Describe   string `json:"describe"`
+	CPU        float64
+	Memory     float64
+	DiskUsage  []float64
+	Disks      []string
+	Paths      string
 	NeedReport bool
-
 }
 
 func (dd *DDMonitor) DO() bool {
 
-	dd.Disks=strings.Split(dd.Paths, ",")
+	dd.Disks = strings.Split(dd.Paths, ",")
 	dd.NeedReport = false
 	v, _ := mem.VirtualMemory()
 	c, _ := cpu.Percent(0, false)
@@ -105,7 +104,7 @@ func (dd *DDMonitor) DO() bool {
 		if d.UsedPercent > 85 {
 			dd.NeedReport = true
 		}
-		dd.DiskUsage= append(dd.DiskUsage, d.UsedPercent)
+		dd.DiskUsage = append(dd.DiskUsage, d.UsedPercent)
 	}
 	return dd.NeedReport
 }
@@ -134,25 +133,25 @@ func main() {
 	//var receiver Robot
 	// nat
 	natCmd := flag.NewFlagSet("nat", flag.ExitOnError)
-	natCmd.StringVar(&dapp.AccessToken, "token", "6587d40230371eb38fff496113ffdc4500b0100dd7208ef1e779313573f3c430", "token" )
-	natCmd.StringVar(&dapp.Secret, "secret", "SEC770b9531b28ba60150c930e964865fbd8d8649e1e9409e65aeb6c4e00aa06bf8", "secret" )
+	natCmd.StringVar(&dapp.AccessToken, "token", "6587d40230371eb38fff496113ffdc4500b0100dd7208ef1e779313573f3c430", "token")
+	natCmd.StringVar(&dapp.Secret, "secret", "SEC770b9531b28ba60150c930e964865fbd8d8649e1e9409e65aeb6c4e00aa06bf8", "secret")
 	natCmd.StringVar(&dapp.Config, "config", "config", "path of config")
 	// message
 
 	msgCmd := flag.NewFlagSet("message", flag.ExitOnError)
 	msgData := DDMessage{}
-	msgCmd.StringVar(&dapp.AccessToken, "token", "6587d40230371eb38fff496113ffdc4500b0100dd7208ef1e779313573f3c430", "token" )
-	msgCmd.StringVar(&dapp.Secret, "secret", "SEC770b9531b28ba60150c930e964865fbd8d8649e1e9409e65aeb6c4e00aa06bf8", "secret" )
-	msgCmd.StringVar(&msgData.Title, "title", "title", "title" )
-	msgCmd.StringVar(&msgData.Describe, "describe", "desc", "desc" )
+	msgCmd.StringVar(&dapp.AccessToken, "token", "6587d40230371eb38fff496113ffdc4500b0100dd7208ef1e779313573f3c430", "token")
+	msgCmd.StringVar(&dapp.Secret, "secret", "SEC770b9531b28ba60150c930e964865fbd8d8649e1e9409e65aeb6c4e00aa06bf8", "secret")
+	msgCmd.StringVar(&msgData.Title, "title", "title", "title")
+	msgCmd.StringVar(&msgData.Describe, "describe", "desc", "desc")
 
 	monitorCmd := flag.NewFlagSet("monitor", flag.ExitOnError)
 	monitorData := DDMonitor{}
-	monitorCmd.StringVar(&dapp.AccessToken, "token", "6587d40230371eb38fff496113ffdc4500b0100dd7208ef1e779313573f3c430", "token" )
-	monitorCmd.StringVar(&dapp.Secret, "secret", "SEC770b9531b28ba60150c930e964865fbd8d8649e1e9409e65aeb6c4e00aa06bf8", "secret" )
-	monitorCmd.StringVar(&monitorData.Title, "title", "title", "title" )
-	monitorCmd.StringVar(&monitorData.Describe, "describe", "desc", "desc" )
-	monitorCmd.StringVar(&monitorData.Paths, "paths", "/", "desc" )
+	monitorCmd.StringVar(&dapp.AccessToken, "token", "6587d40230371eb38fff496113ffdc4500b0100dd7208ef1e779313573f3c430", "token")
+	monitorCmd.StringVar(&dapp.Secret, "secret", "SEC770b9531b28ba60150c930e964865fbd8d8649e1e9409e65aeb6c4e00aa06bf8", "secret")
+	monitorCmd.StringVar(&monitorData.Title, "title", "title", "title")
+	monitorCmd.StringVar(&monitorData.Describe, "describe", "desc", "desc")
+	monitorCmd.StringVar(&monitorData.Paths, "paths", "/", "desc")
 
 	subCommand := os.Args[1]
 

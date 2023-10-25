@@ -1,4 +1,4 @@
-phony:develop
+phony:run
 export GO111MODULE = on
 SERVER=expezgoserver
 # alpha,release,final,auto

@@ -76,8 +76,7 @@ func testSlice() []int {
 	return n
 }
 
-func main() {
-
+func constJson() {
 	bts, e := json.Marshal(1)
 
 	if e != nil {
@@ -86,4 +85,27 @@ func main() {
 
 	fmt.Println(string(bts))
 
+}
+
+type mediaInfo struct {
+	Id   int `json:"id"`
+	Data map[string]int
+}
+
+func mapJson() {
+
+	mi := mediaInfo{}
+	mi.Id = 13
+	mi.Data = make(map[string]int)
+	mi.Data["wang"] = 12
+	mi.Data["chen"] = 24
+	bts, e := json.Marshal(mi)
+	if e != nil {
+		fmt.Println(e.Error())
+	}
+	fmt.Println(string(bts))
+}
+
+func main() {
+	mapJson()
 }

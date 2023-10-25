@@ -268,7 +268,6 @@ func main() {
 	// edges
 
 	// EdgeQuery(ctx, DBD())
-
 	DyTableName(ctx, DBD())
 
 }
