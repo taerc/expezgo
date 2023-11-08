@@ -43,7 +43,7 @@ func kafkaConsumer() {
 	// 	log.Fatal("failed to dial leader:", err)
 	// }
 
-	r := kafka.NewReader(kafka.ReaderConfig{Brokers: []string{"172.10.50.238:9092"},
+	r := kafka.NewReader(kafka.ReaderConfig{Brokers: []string{"172.10.60.58:9092"},
 		Topic:     topic,
 		Partition: partition,
 		GroupID:   "group-id",
