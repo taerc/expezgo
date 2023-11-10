@@ -84,7 +84,11 @@ tcpserver:research/exp_24_tcpserver.go
 	go build -o $(BUILD)/tcpserver research/exp_24_tcpserver.go
 byteorder:research/exp_25_byteorder.go
 	go build -o $(BUILD)/byteorder research/exp_25_byteorder.go
+pdf:research/exp_29_pdf.go
+	go build -o $(BUILD)/pdf research/exp_29_pdf.go
 
+word:research/exp_28_word.go
+	go build -o $(BUILD)/word research/exp_28_word.go
 
 
 
