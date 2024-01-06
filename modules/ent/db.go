@@ -2,10 +2,10 @@ package ent
 
 import (
 	"context"
+
 	"entgo.io/ent/dialect"
 	"github.com/taerc/ezgo"
 )
-
 
 var db *Client = nil
 
