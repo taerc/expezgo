@@ -1,9 +1,12 @@
 package main
 
 import (
-	"context"
-	"expezgo/modules/db/columns/ent"
 
+	// "expezgo/modules/db/columns/ent"
+
+	"context"
+	"expezgo/modules/ent"
+	"expezgo/modules/ent/columns"
 	"flag"
 	"fmt"
 

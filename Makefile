@@ -19,13 +19,17 @@ version:Makefile
 
 release:version
 	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/$(SERVER) cmd/expezgoserver.go
+
+sqlmonitor:
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/sqlmonitor cmd/sqlmonitor/main.go
+
+
 init:
-	@rm -f go.mod go.sum
-	@go mod init expezgo
-	@go generate ./modules/db/columns
+	@go mod download
+	@go generate ./modules/ent
 	@go mod tidy
+
 develop:version
-	#@go generate main.go
 	@go build -o build/$(SERVER) -gcflags="all=-N -l" cmd/expezgoserver.go
 publish:version
 #linux系统 build
